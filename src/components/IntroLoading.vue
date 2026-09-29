@@ -127,6 +127,9 @@
           <div class="scan"></div>
           <i></i><i></i><i></i><i></i><i></i>
         </div>
+        <div class="glitch-burst" v-if="glitchOut" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
 
         <!-- Phase 1-3: kotak teks di kanan atas -->
         <div class="waking-box" :key="wakeStage" v-if="phase === 'waking'">
@@ -152,7 +155,7 @@
 
           <div class="narrative-text" :class="{ show: txStage === 2 }">{{ TX_REPLY }}</div>
 
-          <div class="choices" v-if="txStage >= 4">
+          <div class="choices" v-if="txStage >= 4 && !glitchOut">
             <button class="choice" @click="onChoose('whatever')">{{ t('whatever') }}</button>
             <button class="choice choice-warn" @click="onChoose('inspect')">{{ t('inspectBtn') }}</button>
           </div>
@@ -949,11 +952,13 @@
 
       <div class="stage whatever-video-stage" v-else-if="phase === 'whatever'" key="whatever">
         <video
+          ref="videoEl"
           class="whatever-video"
           src="/picture/whatever.mp4"
           autoplay
           controls
           playsinline
+          @loadedmetadata="applyMaster"
           @ended="onWhateverVideoEnded"
         ></video>
       </div>
@@ -1147,6 +1152,36 @@
         </transition>
       </div>
     </transition>
+    <div v-if="showVolume" class="vol-ctrl">
+      <button
+        class="vol-btn"
+        type="button"
+        @click="toggleMute"
+        :aria-label="volMuted ? 'Unmute' : 'Mute'"
+        :title="volMuted ? 'Unmute' : 'Mute'"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M11 5L6 9H2v6h4l5 4V5z" />
+          <template v-if="volMuted">
+            <path d="M22 9l-6 6M16 9l6 6" />
+          </template>
+          <template v-else>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+            <path v-if="masterVolume > 0.5" d="M19 5a10 10 0 0 1 0 14" />
+          </template>
+        </svg>
+      </button>
+      <input
+        class="vol-range"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        :value="masterMuted ? 0 : masterVolume"
+        @input="onVolInput($event.target.value)"
+        aria-label="Volume"
+      />
+    </div>
     <button
       v-if="showLang"
       class="lang-toggle"
@@ -1489,6 +1524,71 @@ const endingEl = ref(null) // lagu ending (mulai saat video "whatever" selesai)
 const openingEl = ref(null) // lagu opening dunia hijau (mulai saat scroll / langit biru)
 const mainEl = ref(null) // musik utama dunia hijau
 
+// ================= MASTER VOLUME =================
+const masterVolume = ref(1)
+const masterMuted = ref(false)
+const videoEl = ref(null)
+const volMuted = computed(() => masterMuted.value || masterVolume.value === 0)
+const showVolume = computed(() => phase.value !== 'loading' && phase.value !== 'whatever')
+
+let audioCtx = null
+let masterGain = null
+
+function allAudioRefs() {
+  return [audioEl, musicEl, sfxEl, radioEl, syncEl, natureEl, endingEl, fireEl, openingEl, mainEl]
+}
+
+function initAudioGraph() {
+  if (audioCtx) { audioCtx.resume?.(); return }
+  const Ctx = window.AudioContext || window.webkitAudioContext
+  if (!Ctx) return
+  try {
+    audioCtx = new Ctx()
+    masterGain = audioCtx.createGain()
+    masterGain.connect(audioCtx.destination)
+    for (const audioRef of allAudioRefs()) {
+      if (audioRef.value) audioCtx.createMediaElementSource(audioRef.value).connect(masterGain)
+    }
+    audioCtx.resume?.()
+    applyMaster()
+  } catch {
+    audioCtx = null
+    masterGain = null
+  }
+}
+
+function applyMaster() {
+  const muted = volMuted.value
+  if (masterGain && audioCtx) {
+    masterGain.gain.setTargetAtTime(muted ? 0 : masterVolume.value, audioCtx.currentTime, 0.03)
+  } else {
+    for (const audioRef of allAudioRefs()) if (audioRef.value) audioRef.value.muted = muted
+  }
+  const video = videoEl.value
+  if (video) {
+    video.volume = masterVolume.value
+    video.muted = muted
+  }
+}
+
+function toggleMute() {
+  audioCtx?.resume?.()
+  if (volMuted.value) {
+    masterMuted.value = false
+    if (masterVolume.value === 0) masterVolume.value = 0.6
+  } else {
+    masterMuted.value = true
+  }
+}
+
+function onVolInput(value) {
+  audioCtx?.resume?.()
+  masterVolume.value = Number(value)
+  if (masterVolume.value > 0) masterMuted.value = false
+}
+
+watch([masterVolume, masterMuted], applyMaster)
+
 // Lagu ending: mulai saat video selesai (layar hitam sebelum teks reality check)
 const ENDING_FILE = '/music/ending.mp3'
 const ENDING_VOLUME = 0.8
@@ -1693,6 +1793,7 @@ function startLoading() {
 }
 
 function onStartClick() {
+  initAudioGraph()
   phase.value = 'headphone'
   setTimeout(() => {
     if (cancelled) return
@@ -1793,13 +1894,28 @@ function onChoose(choice) {
     return
   }
   if (choice === 'whatever') {
-    phase.value = 'whatever'
-    stopIntroMusic()
+    startWhateverGlitch()
     return
   }
   phase.value = 'done'
   stopIntroMusic()
   emit('finished', choice) // 'whatever'
+}
+
+// --- transisi glitch sebelum video "whatever" -------------------------------
+const GLITCH_OUT_MS = 1400
+const glitchOut = ref(false)
+let glitchTimer = null
+
+function startWhateverGlitch() {
+  glitchOut.value = true
+  stopIntroMusic(GLITCH_OUT_MS)
+  playRadio()
+  glitchTimer = setTimeout(() => {
+    stopSfx()
+    glitchOut.value = false
+    phase.value = 'whatever'
+  }, GLITCH_OUT_MS)
 }
 
 // --- reality check -> pilihan ---------------------------------------------
@@ -1917,6 +2033,8 @@ async function copyEmail(m) {
 function restart() {
   // hentikan semua timer & listener
   cancelled = true
+  clearTimeout(glitchTimer)
+  glitchOut.value = false
   clearGameTimers()
   clearTrashTimers()
   clearDroneTimers()
@@ -3215,6 +3333,7 @@ onMounted(startLoading)
 
 onBeforeUnmount(() => {
   cancelled = true
+  clearTimeout(glitchTimer)
   clearGameTimers()
   clearTrashTimers()
   clearDroneTimers()
@@ -3235,6 +3354,7 @@ onBeforeUnmount(() => {
   natureEl.value?.pause()
   openingEl.value?.pause()
   mainEl.value?.pause()
+  audioCtx?.close?.()
 })
 
 const currentLine = computed(() => lines.value[narrativeIndex.value] || '')
@@ -3243,7 +3363,9 @@ const currentLine = computed(() => lines.value[narrativeIndex.value] || '')
 // st-dark: transmission (langit gelap + glitch)
 const sceneState = computed(() => {
   if (phase.value === 'waking') return `st-p${wakeStage.value}`
-  if (phase.value === 'transmission') return 'st-open st-dark'
+  if (phase.value === 'transmission') {
+    return glitchOut.value ? 'st-open st-dark st-glitch-out' : 'st-open st-dark'
+  }
   return 'st-open'
 })
 </script>
@@ -3665,6 +3787,73 @@ const sceneState = computed(() => {
   49%  { transform: translate(0, 0); filter: none; }
   81%  { transform: translate(-8px, 0); }
   82%  { transform: translate(0, 0); }
+}
+
+/* ============ TRANSISI GLITCH -> VIDEO WHATEVER ============ */
+.st-glitch-out { animation: stageShake 0.16s steps(2) infinite; }
+@keyframes stageShake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-6px, 2px); }
+  50% { transform: translate(5px, -3px); }
+  75% { transform: translate(-3px, -2px); }
+  100% { transform: translate(4px, 3px); }
+}
+.st-glitch-out .scene-bg { animation: bgGlitchHard 0.28s steps(1) infinite; }
+@keyframes bgGlitchHard {
+  0% { transform: translate(0, 0) scale(1); filter: none; }
+  20% { transform: translate(-14px, 2px) scale(1.03); filter: hue-rotate(70deg) saturate(2); }
+  40% { transform: translate(12px, -3px) scale(1); filter: invert(1) hue-rotate(180deg); }
+  60% { transform: translate(-6px, 4px) scale(1.05); filter: hue-rotate(-60deg) contrast(1.6); }
+  80% { transform: translate(9px, 0) scale(1); filter: saturate(3) brightness(1.4); }
+}
+.glitch-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  animation: burstBlack 1.4s linear forwards;
+}
+@keyframes burstBlack {
+  0%, 55% { background: rgba(0, 0, 0, 0); }
+  100% { background: #000; }
+}
+.glitch-burst::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  mix-blend-mode: overlay;
+  animation: burstFlash 0.45s steps(5) forwards;
+}
+@keyframes burstFlash {
+  0% { opacity: 0.9; }
+  30% { opacity: 0.1; }
+  55% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+.glitch-burst i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: burstBar 0.35s steps(1) infinite;
+}
+.glitch-burst i:nth-child(1) { top: 6%; height: 12px; background: rgba(255, 50, 50, 0.6); }
+.glitch-burst i:nth-child(2) { top: 20%; height: 5px; background: rgba(80, 220, 255, 0.6); animation-delay: -0.1s; }
+.glitch-burst i:nth-child(3) { top: 38%; height: 22px; background: rgba(255, 255, 255, 0.35); animation-delay: -0.2s; }
+.glitch-burst i:nth-child(4) { top: 55%; height: 8px; background: rgba(255, 90, 40, 0.6); animation-delay: -0.05s; }
+.glitch-burst i:nth-child(5) { top: 68%; height: 16px; background: rgba(80, 255, 170, 0.45); animation-delay: -0.25s; }
+.glitch-burst i:nth-child(6) { top: 82%; height: 6px; background: rgba(255, 255, 255, 0.5); animation-delay: -0.15s; }
+.glitch-burst i:nth-child(7) { top: 92%; height: 10px; background: rgba(255, 40, 40, 0.55); animation-delay: -0.3s; }
+@keyframes burstBar {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  15% { opacity: 1; transform: translateX(-8%); }
+  35% { opacity: 0; }
+  55% { opacity: 1; transform: translateX(10%); }
+  70% { opacity: 0; }
+  85% { opacity: 1; transform: translateX(-4%); }
 }
 
 /* langit makin gelap dari atas */
@@ -6035,7 +6224,66 @@ const sceneState = computed(() => {
 .lang-toggle span.on { color: #ff9a5c; text-shadow: 0 0 8px rgba(255, 140, 90, 0.8); }
 .lang-toggle i { width: 1px; height: 14px; background: rgba(255, 140, 90, 0.4); }
 
+/* ============ VOLUME (kiri bawah) ============ */
+.vol-ctrl {
+  position: absolute;
+  left: 2vw;
+  bottom: 2.5vh;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px;
+  background: rgba(20, 8, 8, 0.8);
+  border: 1px solid rgba(255, 140, 90, 0.4);
+  border-radius: 999px;
+  transition: border-color 0.2s, box-shadow 0.2s, gap 0.25s ease, padding 0.25s ease;
+}
+.vol-ctrl:hover,
+.vol-ctrl:focus-within {
+  gap: 8px;
+  padding-right: 14px;
+  border-color: #ff9a5c;
+  box-shadow: 0 0 14px rgba(255, 110, 40, 0.35);
+}
+.vol-btn {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff9a5c;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.vol-btn svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vol-btn:focus-visible { outline: 2px solid #f4f0e8; outline-offset: 2px; }
+.vol-range {
+  width: 0;
+  opacity: 0;
+  accent-color: #ff9a5c;
+  cursor: pointer;
+  transition: width 0.25s ease, opacity 0.2s ease;
+}
+.vol-ctrl:hover .vol-range,
+.vol-ctrl:focus-within .vol-range {
+  width: 90px;
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .st-glitch-out, .st-glitch-out .scene-bg, .glitch-burst i, .glitch-burst::before { animation: none; }
   .eco-start { animation: none; }
   .g-float, .g-orb, .g-rays, .call-ring, .g-hint svg { animation: none; }
   .stage-banner, .sb-spark, .t-belt::before, .t-item.selected svg,
