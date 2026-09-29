@@ -655,8 +655,8 @@
               <div class="sb-check">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
               </div>
-              <div class="sb-line1">STAGE 1 COMPLETED:</div>
-              <div class="sb-line2">AIR PURIFIED!</div>
+              <div class="sb-line1">{{ bannerLine1 }}</div>
+              <div class="sb-line2">{{ bannerLine2 }}</div>
               <svg class="sb-leaf sb-leaf-l" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86C10 44 40 14 88 12c2 44-26 74-74 74z" /><path d="M14 86L58 42" /></svg>
               <svg class="sb-leaf sb-leaf-r" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86C10 44 40 14 88 12c2 44-26 74-74 74z" /><path d="M14 86L58 42" /></svg>
               <i class="sb-spark" style="left:8%;top:-6%"></i>
@@ -787,6 +787,164 @@
             </div>
           </transition>
         </div>
+
+        <!-- ===== MINI GAME 3: SATELLITE DRONE REFORESTATION ===== -->
+        <div class="drone-root" v-if="droneState !== 'idle'">
+          <transition name="fade">
+            <div class="eco-overlay" v-if="droneState === 'intro'">
+              <div class="eco-card">
+                <div class="eco-title">
+                  <span class="eco-name">SATELLITE</span>
+                  <span class="eco-year">DRONE</span>
+                </div>
+                <div class="eco-tag">REFOREST THE LAND, RESTORE THE OXYGEN</div>
+                <button class="eco-start" @click="startDrone">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" /></svg>
+                  START GAME
+                </button>
+                <div class="eco-info">
+                  <svg class="eco-clock" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
+                  </svg>
+                  <p>Tap the barren spots to launch Smart Seed Pods.<br />Grow {{ DRONE_GOAL }} trees in {{ DRONE_SECONDS }} seconds!</p>
+                </div>
+              </div>
+            </div>
+          </transition>
+
+          <template v-if="droneState !== 'intro'">
+            <div class="d-radar" aria-hidden="true"><div class="d-sweep"></div></div>
+            <div class="g-hud">
+              <div class="g-card g-timer" :class="{ danger: droneTime <= 6 }">
+                <svg class="g-clock" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
+                </svg>
+                <div><small>TIME LEFT</small><b>{{ droneTime }}s</b></div>
+              </div>
+              <div class="g-card g-bar">
+                <div class="g-bar-label">FOREST RESTORED: {{ Math.round((droneGrown / DRONE_GOAL) * 100) }}%</div>
+                <div class="g-segs"><i v-for="n in DRONE_GOAL" :key="n" :class="{ on: droneGrown >= n }"></i></div>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <button
+                v-for="p in dronePlots"
+                :key="p.id"
+                class="d-plot"
+                :class="{ grown: p.grown, launching: p.launching }"
+                :style="{ left: p.x + '%', top: p.y + '%' }"
+                aria-label="Barren soil"
+                @pointerdown.prevent="plantSeed(p)"
+              >
+                <span class="d-dot"></span>
+                <span class="d-pod"></span>
+                <svg class="d-tree" viewBox="0 0 100 100" aria-hidden="true">
+                  <rect x="45" y="58" width="10" height="32" rx="3" fill="#7a4f2b" />
+                  <circle cx="50" cy="42" r="26" fill="#2fbf5f" />
+                  <circle cx="34" cy="54" r="18" fill="#3fd672" />
+                  <circle cx="66" cy="54" r="18" fill="#3fd672" />
+                </svg>
+                <span class="d-signal"><i></i><i></i></span>
+              </button>
+            </div>
+
+            <div class="g-hint g-card t-hint" :class="{ show: droneHint }">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0V10a1.5 1.5 0 0 1 3 0v4.5c0 3-2 6-5.5 6H12c-2 0-3-1-4.2-2.6L5 14a1.5 1.5 0 0 1 2.3-1.9L9 14" />
+              </svg>
+              <span>Tap the barren spots<br />to plant trees!</span>
+            </div>
+          </template>
+
+          <div class="g-overlay" v-if="droneState === 'lost'">
+            <div class="g-result g-card">
+              <div class="g-result-title">TIME'S UP!</div>
+              <p>Only {{ droneGrown }} of {{ DRONE_GOAL }} trees grown.<br />The forest still needs you. Try again!</p>
+              <button class="g-btn" @click="startDrone">TRY AGAIN</button>
+            </div>
+          </div>
+
+          <div class="g-win-flash" v-if="droneWinFlash" aria-hidden="true"></div>
+          <div class="g-center" v-if="droneState === 'won' && !droneTxOpen">
+            <div class="g-rays"></div>
+            <div class="g-title">MISSION<br />COMPLETE!</div>
+          </div>
+
+          <transition name="fade">
+            <div class="g-overlay call-overlay" v-if="droneTxOpen">
+              <div class="call-card">
+                <div class="tx-header">[ 📡 TRANSMISSION 2076 ]</div>
+                <p class="reality-message">"{{ DRONE_TX }}"</p>
+                <button class="choice call-answer" @click="onDroneContinue">CONTINUE</button>
+              </div>
+            </div>
+          </transition>
+        </div>
+
+        <!-- ===== ALL STAGES DONE BANNER ===== -->
+        <transition name="fade">
+          <div class="stage-banner-wrap" v-if="allDoneBanner">
+            <div class="stage-banner">
+              <div class="sb-check">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              </div>
+              <div class="sb-line1">ALL STAGES DONE!</div>
+              <div class="sb-line2 sb-small">You completed all 3 stages!</div>
+              <i class="sb-spark" style="left:8%;top:-6%"></i>
+              <i class="sb-spark" style="left:88%;top:-10%;animation-delay:-.5s"></i>
+              <i class="sb-spark" style="left:96%;top:60%;animation-delay:-.9s"></i>
+            </div>
+          </div>
+        </transition>
+
+        <!-- ===== HAPPY ENDING TEXT ===== -->
+        <transition name="fade">
+          <div class="be-layer he-layer" v-if="happyStage >= 1 && !happyContactOpen">
+            <transition name="end-text" mode="out-in">
+              <p class="be-thanks" v-if="happyStage === 1" key="h1">{{ happyThanksName }}</p>
+              <div class="he-title" v-else-if="happyStage === 2" key="h2">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                <span>HAPPY ENDING UNLOCKED:<br />TIMELINE RESTORED</span>
+              </div>
+              <p class="be-thanks" v-else-if="happyStage === 3" key="h3">{{ HE_SUB }}</p>
+              <p class="be-thanks" v-else-if="happyStage === 4" key="h4">{{ BE_THANKS }}</p>
+              <p class="be-edu" v-else key="h5">{{ BE_EDU }}</p>
+            </transition>
+            <transition name="fade">
+              <button class="be-contact" v-if="happyStage >= 6" @click="happyContactOpen = true; emit('contact')">Contact Us</button>
+            </transition>
+            <transition name="fade">
+              <button class="be-restart" v-if="happyStage >= 6" @click="restart">Start over</button>
+            </transition>
+          </div>
+        </transition>
+
+        <transition name="fade">
+          <div class="be-layer be-contact-layer he-contact" v-if="happyContactOpen">
+            <div class="ct-title">Contact Us</div>
+            <div class="ct-grid">
+              <div class="ct-card" v-for="m in TEAM" :key="m.id">
+                <div class="ct-name">{{ m.name }}</div>
+                <div class="ct-icons">
+                  <a class="ct-icon" :class="{ off: !m.github }" :href="m.github || undefined" target="_blank" rel="noopener noreferrer" :aria-label="'GitHub ' + m.name" :aria-disabled="!m.github" @click="!m.github && $event.preventDefault()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>
+                  </a>
+                  <a class="ct-icon" :class="{ off: !m.linkedin }" :href="m.linkedin || undefined" target="_blank" rel="noopener noreferrer" :aria-label="'LinkedIn ' + m.name" :aria-disabled="!m.linkedin" @click="!m.linkedin && $event.preventDefault()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 22.222 23.227h.003zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+                  </a>
+                  <button type="button" class="ct-icon" :aria-label="'Copy email ' + m.name" title="Copy email" @click="copyEmail(m)">
+                    <svg viewBox="0 0 24 24" class="ct-stroke" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 7l8.5 6.5L20.5 7" /></svg>
+                  </button>
+                </div>
+                <div class="ct-toast" :class="{ show: copiedId === m.id }">Email copied!</div>
+              </div>
+            </div>
+            <button class="ct-back" @click="happyContactOpen = false">Back</button>
+          </div>
+        </transition>
+
+        <div class="he-dim" :class="{ on: happyStage >= 1 }" aria-hidden="true"></div>
       </div>
 
       <!-- DONE / handoff to Fase 2 -->
@@ -1577,6 +1735,8 @@ function restart() {
   cancelled = true
   clearGameTimers()
   clearTrashTimers()
+  clearDroneTimers()
+  happyTimers.forEach(clearTimeout); happyTimers.length = 0
   clearTimeout(realityTimer)
   clearInterval(badIv)
   clearInterval(endingIv)
@@ -1644,6 +1804,19 @@ function restart() {
   trashCorrect.value = 0
   selectedId.value = null
   trashTxOpen.value = false
+  stageBanner.value = false
+  bannerLine1.value = 'STAGE 1 COMPLETED:'
+  bannerLine2.value = 'AIR PURIFIED!'
+  droneState.value = 'idle'
+  dronePlots.value = []
+  droneTime.value = DRONE_SECONDS
+  droneGrown.value = 0
+  droneHint.value = false
+  droneTxOpen.value = false
+  droneWinFlash.value = false
+  allDoneBanner.value = false
+  happyStage.value = 0
+  happyContactOpen.value = false
 
   cancelled = false
   phase.value = 'goGreen'
@@ -2554,6 +2727,9 @@ const BINS = [
 ]
 
 const stageBanner = ref(false)
+const bannerLine1 = ref('STAGE 1 COMPLETED:')
+const bannerLine2 = ref('AIR PURIFIED!')
+const allDoneBanner = ref(false)
 const trashState = ref('idle')
 const trashItems = ref([])
 const trashTime = ref(TRASH_SECONDS)
@@ -2587,11 +2763,16 @@ function clearTrashTimers() {
   trashTimers.length = 0
 }
 
-function showStageBanner() {
+function showStageBanner(line1 = 'STAGE 1 COMPLETED:', line2 = 'AIR PURIFIED!', next = null) {
+  bannerLine1.value = line1
+  bannerLine2.value = line2
   stageBanner.value = true
   trashLater(() => {
     stageBanner.value = false
-    trashLater(() => { trashState.value = 'intro' }, 900)
+    trashLater(() => {
+      if (next) next()
+      else trashState.value = 'intro'
+    }, 900)
   }, STAGE_BANNER_MS)
 }
 
@@ -2714,7 +2895,145 @@ function onTrashContinue() {
   clearTrashTimers()
   stopSfx()
   trashTxOpen.value = false
-  emit('finished', 'trash')
+  trashLater(() => {
+    trashState.value = 'idle'
+    showStageBanner('STAGE 2 COMPLETED:', 'WATER PURIFIED!', () => {
+      droneState.value = 'intro'
+    })
+  }, 500)
+}
+
+// ========== MINI GAME 3: SATELLITE DRONE REFORESTATION ==========
+const DRONE_SECONDS = 20
+const DRONE_GOAL = 10
+const DRONE_TX = 'Kalimantan forest is dense again! Atmospheric oxygen levels are rising fast!'
+const HE_SUB = 'You rewrote the timeline.\nIn 2076, the Earth breathes again.'
+
+const droneState = ref('idle')
+const dronePlots = ref([])
+const droneTime = ref(DRONE_SECONDS)
+const droneGrown = ref(0)
+const droneHint = ref(false)
+const droneTxOpen = ref(false)
+const droneWinFlash = ref(false)
+let droneIv = null
+let droneMs = 0
+const droneTimers = []
+
+function droneLater(fn, ms) {
+  droneTimers.push(setTimeout(fn, ms))
+}
+function clearDroneTimers() {
+  clearInterval(droneIv)
+  droneTimers.forEach(clearTimeout)
+  droneTimers.length = 0
+}
+
+function buildPlots() {
+  const columns = 5
+  const rows = 4
+  const random = seeded(Math.floor(Math.random() * 1000) + 1)
+  const plots = []
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      plots.push({
+        id: row * columns + column,
+        x: 14 + column * (72 / (columns - 1)) + (random() - 0.5) * 3,
+        y: 30 + row * (48 / (rows - 1)) + (random() - 0.5) * 3,
+        grown: false,
+        launching: false
+      })
+    }
+  }
+  return plots
+}
+
+function startDrone() {
+  clearDroneTimers()
+  dronePlots.value = buildPlots()
+  droneGrown.value = 0
+  droneTime.value = DRONE_SECONDS
+  droneMs = DRONE_SECONDS * 1000
+  droneTxOpen.value = false
+  droneWinFlash.value = false
+  droneHint.value = true
+  droneState.value = 'starting'
+  droneLater(() => {
+    droneState.value = 'playing'
+    droneIv = setInterval(droneTick, 100)
+  }, 1200)
+  droneLater(() => { droneHint.value = false }, 5000)
+}
+
+function droneTick() {
+  if (droneState.value !== 'playing') return
+  droneMs -= 100
+  droneTime.value = Math.max(0, Math.ceil(droneMs / 1000))
+  if (droneMs <= 0) loseDrone()
+}
+
+function plantSeed(plot) {
+  if (droneState.value !== 'playing' || plot.grown || plot.launching) return
+  plot.launching = true
+  droneLater(() => {
+    if (droneState.value !== 'playing' || plot.grown) return
+    plot.launching = false
+    plot.grown = true
+    droneGrown.value++
+    playSync()
+    if (droneGrown.value >= DRONE_GOAL) winDrone()
+  }, 350)
+}
+
+function loseDrone() {
+  clearDroneTimers()
+  droneState.value = 'lost'
+}
+
+function winDrone() {
+  clearDroneTimers()
+  droneState.value = 'won'
+  droneWinFlash.value = true
+  droneLater(() => { droneWinFlash.value = false }, 1600)
+  droneLater(() => {
+    droneTxOpen.value = true
+    playRadio()
+  }, 3000)
+}
+
+function onDroneContinue() {
+  clearDroneTimers()
+  stopSfx()
+  droneTxOpen.value = false
+  droneState.value = 'idle'
+  allDoneBanner.value = true
+  droneLater(() => {
+    allDoneBanner.value = false
+    droneLater(startHappyEnding, 900)
+  }, STAGE_BANNER_MS)
+}
+
+// ========== HAPPY ENDING ==========
+const happyStage = ref(0)
+const happyContactOpen = ref(false)
+const happyTimers = []
+const happyThanksName = computed(
+  () => `Thank you, ${nickname.value || 'friend'}, for helping save this Earth.`
+)
+
+function happyLater(fn, ms) {
+  happyTimers.push(setTimeout(fn, ms))
+}
+
+function startHappyEnding() {
+  happyStage.value = 0
+  happyContactOpen.value = false
+  happyLater(() => { happyStage.value = 1 }, 300)
+  happyLater(() => { happyStage.value = 2 }, 5000)
+  happyLater(() => { happyStage.value = 3 }, 9000)
+  happyLater(() => { happyStage.value = 4 }, 14000)
+  happyLater(() => { happyStage.value = 5 }, 19000)
+  happyLater(() => { happyStage.value = 6 }, 21000)
 }
 
 function skip() {
@@ -2732,6 +3051,8 @@ onBeforeUnmount(() => {
   cancelled = true
   clearGameTimers()
   clearTrashTimers()
+  clearDroneTimers()
+  happyTimers.forEach(clearTimeout)
   clearTimeout(realityTimer)
   clearInterval(badIv)
   clearInterval(endingIv)
@@ -5411,6 +5732,111 @@ const sceneState = computed(() => {
 .t-toast.show { opacity: 1; }
 .t-hint { top: 17vh; bottom: auto; }
 
+/* ============ MINI GAME 3: DRONE ============ */
+.drone-root {
+  position: absolute; inset: 0; z-index: 8;
+  pointer-events: none;
+  font-family: 'Fredoka', 'Permanent Marker', sans-serif;
+}
+.d-radar {
+  position: absolute; inset: 0; overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgba(80, 255, 170, 0.07) 0 1px, transparent 1px 6vmin),
+    repeating-linear-gradient(90deg, rgba(80, 255, 170, 0.07) 0 1px, transparent 1px 6vmin),
+    radial-gradient(ellipse 80% 70% at 50% 55%, rgba(30, 60, 30, 0.35), rgba(0, 12, 8, 0.75));
+  animation: radarZoom 1.4s ease-out both;
+}
+@keyframes radarZoom { from { transform: scale(1.6); opacity: 0; } }
+.d-sweep {
+  position: absolute; left: 50%; top: 55%;
+  width: 150vmax; height: 150vmax;
+  margin: -75vmax 0 0 -75vmax;
+  background: conic-gradient(from 0deg, rgba(80, 255, 170, 0.28), transparent 25%);
+  animation: raysSpin 5s linear infinite;
+}
+.d-grid { position: absolute; inset: 0; }
+.d-plot {
+  position: absolute; z-index: 4;
+  width: 9vmin; aspect-ratio: 1;
+  padding: 0; border: none; background: none;
+  transform: translate(-50%, -50%);
+  cursor: pointer; pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.d-dot {
+  position: absolute; inset: 30%;
+  border-radius: 50%;
+  background: #8a6a3f;
+  border: 2px solid #c9a56a;
+  box-shadow: 0 0 10px rgba(201, 165, 106, 0.6);
+  animation: dotBlink 1.6s ease-in-out infinite;
+}
+@keyframes dotBlink { 50% { opacity: 0.45; transform: scale(0.85); } }
+.d-plot:hover .d-dot { box-shadow: 0 0 18px rgba(255, 220, 140, 0.95); }
+.d-pod {
+  position: absolute; left: 50%; top: 50%;
+  width: 22%; height: 22%; border-radius: 50%;
+  background: #6bffb0; box-shadow: 0 0 12px 4px rgba(107, 255, 176, 0.9);
+  transform: translate(-50%, -400%); opacity: 0;
+}
+.d-plot.launching .d-pod { animation: podDrop 0.35s ease-in forwards; }
+@keyframes podDrop {
+  from { transform: translate(-50%, -600%); opacity: 1; }
+  to { transform: translate(-50%, -50%); opacity: 1; }
+}
+.d-tree {
+  position: absolute; inset: -30% -30% 0 -30%;
+  width: 160%; height: 160%;
+  transform: scale(0); transform-origin: 50% 90%;
+  filter: drop-shadow(0 0 10px rgba(107, 255, 156, 0.9));
+}
+.d-plot.grown { cursor: default; pointer-events: none; }
+.d-plot.grown .d-dot { display: none; }
+.d-plot.grown .d-tree { animation: treePop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
+@keyframes treePop { from { transform: scale(0); } to { transform: scale(1); } }
+.d-signal { position: absolute; left: 50%; top: 10%; width: 0; height: 0; opacity: 0; }
+.d-plot.grown .d-signal { opacity: 1; }
+.d-signal i {
+  position: absolute; left: -3vmin; top: -3vmin;
+  width: 6vmin; height: 6vmin; border-radius: 50%;
+  border: 2px solid rgba(107, 255, 176, 0.9);
+  animation: sigPing 1.8s ease-out infinite;
+}
+.d-signal i:nth-child(2) { animation-delay: -0.9s; }
+@keyframes sigPing { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+
+/* ============ ALL STAGES + HAPPY ENDING ============ */
+.sb-small { font-size: clamp(1.1rem, 3.6vw, 1.9rem); }
+.he-dim {
+  position: absolute; inset: 0; z-index: 13; pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0, 25, 15, 0.7), rgba(0, 10, 6, 0.92));
+  opacity: 0; transition: opacity 1.6s ease;
+}
+.he-dim.on { opacity: 1; }
+.he-layer, .he-contact { z-index: 15; }
+.he-title {
+  display: flex; align-items: center; gap: 18px;
+  padding: 14px 30px;
+  font-family: 'Courier New', monospace; font-weight: bold;
+  font-size: clamp(0.85rem, 2.1vw, 1.5rem);
+  letter-spacing: 0.12em; line-height: 1.35; text-align: left;
+  color: #6bff9c;
+  background: rgba(4, 30, 16, 0.8);
+  border: 2px solid #6bff9c;
+  text-shadow: 0 0 10px rgba(80, 255, 140, 0.95);
+  animation: teaserPulse 1.6s ease-in-out infinite;
+}
+.he-title svg {
+  width: clamp(30px, 4.4vw, 52px); flex: none;
+  fill: none; stroke: #6bff9c; stroke-width: 3.2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+@media (max-width: 560px) {
+  .d-plot { width: 12vmin; }
+  .d-radar { background-size: auto; }
+  .he-title { gap: 12px; padding: 12px 16px; letter-spacing: 0.06em; }
+}
+
 @media (max-width: 560px) {
   .stage-banner { padding: 54px 18px 26px; border-radius: 26px; }
   .sb-leaf { width: 32px; bottom: 8px; }
@@ -5434,6 +5860,8 @@ const sceneState = computed(() => {
   .g-float, .g-orb, .g-rays, .call-ring, .g-hint svg { animation: none; }
   .stage-banner, .sb-spark, .t-belt::before, .t-item.selected svg,
   .t-item.scanning .t-laser, .t-bin.ok, .t-bin.bad, .t-plus { animation: none; }
+  .d-radar, .d-sweep, .d-dot, .d-plot.launching .d-pod,
+  .d-plot.grown .d-tree, .d-signal i, .he-title { animation: none; }
   .bird, .bird path, .gw-cam, .gw-sheen, .glint, .gw-sunglow, .gw-flare,
   .gw-rays, .ray, .fleaf, .mote, .fg-cluster, .fg-leaf, .fg-flower,
   .scroll-teaser.show, .tx-neon.show,
