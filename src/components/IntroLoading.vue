@@ -160,11 +160,6 @@
           </div>
         </template>
 
-        <button
-          v-if="phase === 'narrative' || phase === 'transmission'"
-          class="skip-btn"
-          @click="skip"
-        >Skip</button>
       </div>
 
       <!-- INSPECT: 3 warning nodes -->
@@ -1378,7 +1373,7 @@ function stopFire(fadeMs = 1500) {
   }, fadeMs / steps)
 }
 
-let cancelled = false // true setelah Skip / pilihan, supaya timeout lama tidak jalan
+let cancelled = false // true setelah pilihan, supaya timeout lama tidak jalan
 
 function playLineAudio(i) {
   const file = audioFiles[i]
@@ -3036,15 +3031,6 @@ function startHappyEnding() {
   happyLater(() => { happyStage.value = 6 }, 21000)
 }
 
-function skip() {
-  cancelled = true
-  stopFire(800)
-  phase.value = 'done'
-  stopSfx()
-  stopIntroMusic()
-  emit('finished')
-}
-
 onMounted(startLoading)
 
 onBeforeUnmount(() => {
@@ -3722,22 +3708,6 @@ const sceneState = computed(() => {
   box-shadow: 0 0 16px rgba(255, 110, 40, 0.35);
 }
 .choice-warn { border-color: rgba(255, 90, 60, 0.6); }
-
-.skip-btn {
-  position: absolute;
-  z-index: 9;
-  bottom: 24px; right: 24px;
-  font-family: 'Permanent Marker', cursive;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #8a8378;
-  background: none;
-  border: 1px solid #444;
-  padding: 8px 14px;
-  cursor: pointer;
-}
-.skip-btn:hover { color: #f4f0e8; border-color: #f4f0e8; }
 
 /* ============ INSPECT: 3 WARNING NODES ============ */
 .inspect { background: #000; overflow: hidden; display: block; }
