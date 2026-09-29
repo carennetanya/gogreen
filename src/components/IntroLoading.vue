@@ -62,7 +62,7 @@
       >
         <div class="scene-eye">
           <div class="scene-world">
-            <img class="scene-bg" src="/picture/city1.png" alt="" draggable="false" />
+            <img class="scene-bg" src="/picture/city1.avif" alt="" draggable="false" />
             <div class="waking-glow"></div>
 
             <!-- ===== ASAP KEBAKARAN + POLUSI (DI BELAKANG KARAKTER) ===== -->
@@ -590,7 +590,7 @@
                 </template>
                 <template v-else>
                   <div class="call-reveal">
-                    <img class="call-person" src="/picture/people3.png" alt="A person from 2076 celebrating the restored air" />
+                    <img class="call-person" src="/picture/people3.avif" alt="A person from 2076 celebrating the restored air" />
                     <div class="call-dialogue">
                       <transition name="reality-text" mode="out-in" appear>
                         <p class="call-message" :key="callMessageIndex">{{ CALL_MESSAGES[callMessageIndex] }}</p>
@@ -1015,7 +1015,7 @@
 
       <!-- BAD ENDING 2: city2 + asap/api -> warning -> teks -> penutup Team Moli -->
       <div class="stage bad-ending" v-else-if="phase === 'badEnding'" key="badEnding">
-        <img class="be-bg" src="/picture/city2.png" alt="" draggable="false" />
+        <img class="be-bg" src="/picture/city2.avif" alt="" draggable="false" />
 
         <!-- asap kebakaran + polusi -->
         <div class="smoke-layer" aria-hidden="true">
@@ -1265,8 +1265,8 @@ const TX_FINAL = "Now you see the reality. Scroll down before these warnings bec
 // Semua ada di /public/picture/
 // people1 -> phase 1 & 2 (dan awal phase 3 sampai mata merem)
 // people2 -> setelah mata merem total lalu melek (phase 3 akhir + narrative)
-const PEOPLE_EARLY = '/picture/people1.png'
-const PEOPLE_AWAKE = '/picture/people2.png'
+const PEOPLE_EARLY = '/picture/people1.avif'
+const PEOPLE_AWAKE = '/picture/people2.avif'
 
 // ganti gambar dikontrol manual (bukan dari wakeStage),
 // supaya swap terjadi tepat saat mata sedang tertutup
@@ -1819,7 +1819,7 @@ function restart() {
 
 // --- inspect: 3 warning nodes ---------------------------------------------
 // Taruh gambar background-nya di /public/picture/ (ganti nama kalau beda)
-const INSPECT_BG = '/picture/inspect.png'
+const INSPECT_BG = '/picture/inspect.avif'
 
 // x / y = posisi node (% layar) | stem = panjang garis ke bawah (vh)
 const nodes = [
@@ -2117,10 +2117,10 @@ function seeded(seed) {
 }
 
 // --- dunia hijau: background gambar (taruh di /public/picture/) ------------
-const GREEN_BG = '/picture/city3.png'
+const GREEN_BG = '/picture/city3.avif'
 
 // --- dunia hijau: sinar matahari -------------------------------------------
-// Pusat matahari di gambar city3.png kira-kira x=80%, y=4% (lihat .gw-rays di CSS).
+// Pusat matahari di gambar city3.avif kira-kira x=80%, y=4% (lihat .gw-rays di CSS).
 // Berkas melebar ke bawah, kipas ke kiri-bawah & sedikit ke kanan-bawah.
 const rays = (() => {
   const r = seeded(11)
@@ -2401,7 +2401,7 @@ const sceneWisps = buildWisps(58, 5)
 
 // ========== B) INSPECT (layar 3 node) ====================================
 // Titik sumber api (x = % layar, y = % dari atas layar).
-// Sesuaikan dengan gambar inspect.png kalau mau geser sumber apinya.
+// Sesuaikan dengan gambar inspect.avif kalau mau geser sumber apinya.
 const FIRE_SOURCES = [
   { x: 14, y: 78 },  // reruntuhan kiri bawah
   { x: 30, y: 66 },  // bawah jembatan
@@ -2489,9 +2489,9 @@ const embers = (() => {
   return out
 })()
 
-// ========== C) BAD ENDING (city2.png) =====================================
+// ========== C) BAD ENDING (city2.avif) ====================================
 // Sumber api untuk layar bad ending. Geser x/y kalau posisi apinya kurang pas
-// dengan gambar city2.png.
+// dengan gambar city2.avif.
 const BAD_FIRE_SOURCES = [
   { x: 6,  y: 86 },
   { x: 22, y: 78 },
@@ -3354,7 +3354,7 @@ const sceneState = computed(() => {
 /* ============ SCENE ============ */
 .scene { background: #000; overflow: hidden; }
 
-/* dunia (city1.png) — blur & warna dikontrol per fase */
+/* dunia (city1.avif) — blur & warna dikontrol per fase */
 .scene-world {
   position: absolute;
   top: -4vh; bottom: -4vh; left: -10vw; right: -10vw;
@@ -3399,7 +3399,7 @@ const sceneState = computed(() => {
 }
 
 /* ============ ASAP KEBAKARAN + POLUSI DI BELAKANG KARAKTER ============ */
-/* Lapisan ini duduk di antara city1.png dan karakter (person-wrap z-index: 2).
+/* Lapisan ini duduk di antara city1.avif dan karakter (person-wrap z-index: 2).
    Class .smog / .fire-glow / .plume / .ember / .wisp dipakai bersama layar inspect
    dan layar bad ending. */
 .scene-smoke {
@@ -4887,8 +4887,8 @@ const sceneState = computed(() => {
 }
 
 /* ---------- panggung: se-rasio gambar, menutupi layar seperti object-fit: cover ----------
-   Semua overlay memakai % dari panggung ini, jadi posisinya selalu pas dengan gambar.
-   --ar = lebar / tinggi city3.png. Kalau gambarmu beda rasio, ubah angka ini. */
+  Semua overlay memakai % dari panggung ini, jadi posisinya selalu pas dengan gambar.
+  --ar = lebar / tinggi city3.avif. Kalau gambarmu beda rasio, ubah angka ini. */
 .green-world { --ar: 2.095; }
 .gw-defs { position: absolute; width: 0; height: 0; }
 
