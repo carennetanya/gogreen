@@ -1207,7 +1207,10 @@ try {
   if (saved === 'en' || saved === 'id') lang.value = saved
 } catch {}
 watch(lang, (value) => { try { localStorage.setItem('gg-lang', value) } catch {} })
-function toggleLang() { lang.value = lang.value === 'en' ? 'id' : 'en' }
+function toggleLang() {
+  lang.value = lang.value === 'en' ? 'id' : 'en'
+  if (lang.value === 'id') audioEl.value?.pause()
+}
 
 function t(key, params) {
   let text = I18N[lang.value][key] ?? I18N.en[key] ?? key
@@ -1665,6 +1668,7 @@ function stopFire(fadeMs = 1500) {
 let cancelled = false // true setelah pilihan, supaya timeout lama tidak jalan
 
 function playLineAudio(i) {
+  if (lang.value === 'id') return
   const file = audioFiles[i]
   if (!file || !audioEl.value) return
   audioEl.value.src = `/voice/${file}`
