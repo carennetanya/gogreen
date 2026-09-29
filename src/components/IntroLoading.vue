@@ -22,7 +22,7 @@
         <div class="gg-glow"></div>
         <div class="gg-clouds"><i></i><i></i><i></i><i></i><i></i></div>
         <div class="gg-title">Go Green</div>
-        <div class="gg-sub">Click to start</div>
+        <div class="gg-sub">{{ t('goSub') }}</div>
       </div>
 
       <!-- HEADPHONE PROMPT -->
@@ -33,8 +33,8 @@
           <rect x="17" y="15" width="6" height="7" rx="2" />
         </svg>
         <div class="hp-text">
-          <div>Use headphones for</div>
-          <div>best experience</div>
+          <div>{{ t('hpLine1') }}</div>
+          <div>{{ t('hpLine2') }}</div>
         </div>
       </div>
 
@@ -131,7 +131,7 @@
         <!-- Phase 1-3: kotak teks di kanan atas -->
         <div class="waking-box" :key="wakeStage" v-if="phase === 'waking'">
           <div class="tx-header" v-if="wakeStage === 1">
-            [ ⚠️ INCOMING TRANSMISSION // 2076 ]
+            {{ t('txHeader') }}
           </div>
           <div class="waking-text">{{ lines[wakeStage - 1] }}</div>
         </div>
@@ -144,7 +144,7 @@
         <!-- TRANSMISSION -->
         <template v-if="phase === 'transmission'">
           <div class="tx-box">
-            <div class="tx-header">[ ⚠️ INCOMING TRANSMISSION // 2076 ]</div>
+            <div class="tx-header">{{ t('txHeader') }}</div>
             <div class="waking-text tx-fade" :key="txStage >= 3 ? 'b' : 'a'">
               {{ txStage >= 3 ? TX_TOP_2 : TX_TOP_1 }}
             </div>
@@ -153,10 +153,8 @@
           <div class="narrative-text" :class="{ show: txStage === 2 }">{{ TX_REPLY }}</div>
 
           <div class="choices" v-if="txStage >= 4">
-            <button class="choice" @click="onChoose('whatever')">Whatever!</button>
-            <button class="choice choice-warn" @click="onChoose('inspect')">
-              👆 CLICK THE 3 WARNING NODES TO INSPECT YOUR SURROUNDINGS
-            </button>
+            <button class="choice" @click="onChoose('whatever')">{{ t('whatever') }}</button>
+            <button class="choice choice-warn" @click="onChoose('inspect')">{{ t('inspectBtn') }}</button>
           </div>
         </template>
 
@@ -221,7 +219,7 @@
           <svg class="hint-hand" viewBox="0 0 24 24">
             <path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0V10a1.5 1.5 0 0 1 3 0v4.5c0 3-2 6-5.5 6H12c-2 0-3-1-4.2-2.6L5 14a1.5 1.5 0 0 1 2.3-1.9L9 14" />
           </svg>
-          <div class="hint-text"><b>CLICK</b> THE 3 WARNING NODES<br />TO INSPECT YOUR SURROUNDINGS</div>
+          <div class="hint-text">{{ t('hintClick') }} {{ t('hintRest') }}</div>
           <div class="hint-count">{{ seen.length }}/3</div>
         </div>
 
@@ -246,7 +244,7 @@
         <transition name="fade">
           <div class="card-overlay" v-if="activeNode" @click.self="closeNode">
             <div class="data-card">
-              <div class="tx-header">[ ⚠️ SCAN // {{ activeNode.label }} ]</div>
+              <div class="tx-header">{{ t('scan', { label: activeNode.label }) }}</div>
               <div class="card-title">{{ activeNode.title }}</div>
               <div class="card-cols">
                 <div class="card-col">
@@ -262,7 +260,7 @@
                 </div>
               </div>
               <div class="card-msg">"{{ activeNode.msg }}"</div>
-              <button class="choice card-close" @click="closeNode">Close</button>
+              <button class="choice card-close" @click="closeNode">{{ t('close') }}</button>
             </div>
           </div>
         </transition>
@@ -277,7 +275,7 @@
 
         <!-- PESAN PENUTUP 2076 (kanan atas, neon oranye berkedip) -->
         <div class="tx-box tx-neon" :class="{ show: txShow }">
-          <div class="tx-header">[ ⚠️ INCOMING TRANSMISSION // 2076 ]</div>
+          <div class="tx-header">{{ t('txHeader') }}</div>
           <div class="waking-text">{{ TX_FINAL }}</div>
         </div>
 
@@ -287,7 +285,7 @@
           :class="{ show: unlocked && !shifted }"
           :tabindex="unlocked && !shifted ? 0 : -1"
           @click="startShift"
-        >[ TRANSMISSION UNLOCKED — SCROLL TO PREVENT 2076 ↓ ]</button>
+        >{{ t('unlocked') }}</button>
 
         <!-- ===== DUNIA HIJAU (cross-fade saat mulai scroll) ===== -->
         <div class="green-world" ref="greenEl" :class="{ on: shifted && !nicknamePrompt, waking: waking }" :style="worldStyle" aria-hidden="true">
@@ -436,8 +434,8 @@
           @submit.prevent="beginWakeSequence"
         >
           <div class="nickname-card">
-            <div class="tx-header">[ IDENTITY CHECK // 2076 ]</div>
-            <label class="nickname-label" for="wake-nickname">What should I call you?</label>
+            <div class="tx-header">{{ t('identity') }}</div>
+            <label class="nickname-label" for="wake-nickname">{{ t('nickLabel') }}</label>
             <input
               id="wake-nickname"
               v-model.trim="nicknameInput"
@@ -446,10 +444,10 @@
               name="nickname"
               autocomplete="nickname"
               maxlength="24"
-              placeholder="Your nickname"
+              :placeholder="t('nickPh')"
               required
             />
-            <button class="choice nickname-submit" type="submit">Continue</button>
+            <button class="choice nickname-submit" type="submit">{{ t('continue') }}</button>
           </div>
         </form>
 
@@ -467,11 +465,11 @@
                 <span class="eco-name">ECO-PULSE</span>
                 <span class="eco-year">2026</span>
               </div>
-              <div class="eco-tag">CLEAN THE AIR, BRIGHTER TOMORROW</div>
+              <div class="eco-tag">{{ t('ecoTag') }}</div>
 
               <button class="eco-start" @click="onStartGame">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" /></svg>
-                START GAME
+                {{ t('startGame') }}
               </button>
 
               <div class="eco-info">
@@ -479,7 +477,7 @@
                   <circle cx="12" cy="13" r="8" />
                   <path d="M12 9v4l2.5 2M9.5 2h5" />
                 </svg>
-                <p>Clear the pollution within 15 seconds<br />to restore clean air!</p>
+                <p>{{ t('ecoInfo', { s: GAME_SECONDS }) }}</p>
               </div>
             </div>
           </div>
@@ -501,18 +499,18 @@
               <svg class="g-clock" viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
               </svg>
-              <div><small>TIME LEFT</small><b>{{ timeLeft }}s</b></div>
+              <div><small>{{ t('timeLeft') }}</small><b>{{ timeLeft }}s</b></div>
             </div>
 
             <div class="g-card g-bar">
               <div class="g-bar-label">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" /></svg>
-                CLEAN AIR: {{ cleanAir }}%
+                {{ t('cleanAir', { n: cleanAir }) }}
               </div>
               <div class="g-segs"><i v-for="n in 10" :key="n" :class="{ on: cleanAir > (n - 1) * 10 }"></i></div>
             </div>
 
-            <button class="g-card g-pause" :class="{ 'g-hide': gameState !== 'playing' }" @click="togglePause">❚❚ PAUSE</button>
+            <button class="g-card g-pause" :class="{ 'g-hide': gameState !== 'playing' }" @click="togglePause">{{ t('pause') }}</button>
           </div>
 
           <button
@@ -521,7 +519,7 @@
             class="g-bubble"
             :class="{ leaf: b.leaf, fading: b.life < 500 }"
             :style="b.style"
-            :aria-label="b.leaf ? 'Green seed' : 'Pollution bubble'"
+            :aria-label="b.leaf ? t('seedAria') : t('pollAria')"
             @pointerdown.prevent="hit(b)"
           >
             <span class="g-float">
@@ -552,58 +550,58 @@
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0V10a1.5 1.5 0 0 1 3 0v4.5c0 3-2 6-5.5 6H12c-2 0-3-1-4.2-2.6L5 14a1.5 1.5 0 0 1 2.3-1.9L9 14" />
             </svg>
-            <span>Tap the pollution bubbles<br />to clean the air!</span>
+            <span>{{ t('gameHint') }}</span>
           </div>
 
           <div class="g-overlay" v-if="paused" @click="togglePause">
             <div class="g-result g-card">
-              <div class="g-result-title">PAUSED</div>
-              <button class="g-btn" @click.stop="togglePause">RESUME</button>
+              <div class="g-result-title">{{ t('paused') }}</div>
+              <button class="g-btn" @click.stop="togglePause">{{ t('resume') }}</button>
             </div>
           </div>
 
           <div class="g-overlay" v-if="gameState === 'lost'">
             <div class="g-result g-card">
-              <div class="g-result-title">TIME'S UP!</div>
-              <p>Only {{ cleanAir }}% of the air is clean.<br />The city needs you. Try again!</p>
-              <button class="g-btn" @click="startGame">TRY AGAIN</button>
+              <div class="g-result-title">{{ t('timesUp') }}</div>
+              <p>{{ t('cleanLose', { n: cleanAir }) }}</p>
+              <button class="g-btn" @click="startGame">{{ t('tryAgain') }}</button>
             </div>
           </div>
 
           <div class="g-win-flash" v-if="winFlash" aria-hidden="true"></div>
           <div class="g-center" v-if="gameState === 'won' && !callOpen">
             <div class="g-rays"></div>
-            <div class="g-title">MISSION<br />COMPLETE!</div>
+            <div class="g-title">{{ t('mission') }}</div>
           </div>
 
           <transition name="fade">
             <div class="g-overlay call-overlay" :class="{ 'call-answered': callAnswered }" v-if="callOpen">
               <div class="call-card">
                 <template v-if="!callAnswered">
-                  <div class="tx-header">[ ⚠️ INCOMING CALL // 2076 ]</div>
+                  <div class="tx-header">{{ t('callHeader') }}</div>
                   <div class="call-ring">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
                   </div>
-                  <div class="call-name">Caller from 2076</div>
-                  <p class="call-sub">The air is clean again... they're calling you!</p>
-                  <button class="choice call-answer" @click="answerCall">ANSWER</button>
+                  <div class="call-name">{{ t('callName') }}</div>
+                  <p class="call-sub">{{ t('callSub') }}</p>
+                  <button class="choice call-answer" @click="answerCall">{{ t('answer') }}</button>
                 </template>
                 <template v-else>
                   <div class="call-reveal">
-                    <img class="call-person" src="/picture/people3.avif" alt="A person from 2076 celebrating the restored air" />
+                    <img class="call-person" src="/picture/people3.avif" :alt="t('callAlt')" />
                     <div class="call-dialogue">
                       <transition name="reality-text" mode="out-in" appear>
                         <p class="call-message" :key="callMessageIndex">{{ CALL_MESSAGES[callMessageIndex] }}</p>
                       </transition>
                     </div>
                   </div>
-                  <div class="call-controls" aria-label="Call controls">
+                  <div class="call-controls" :aria-label="t('callControls')">
                     <button
                       class="call-control"
                       :class="{ active: micMuted }"
                       type="button"
-                      :aria-label="micMuted ? 'Unmute microphone' : 'Mute microphone'"
-                      :title="micMuted ? 'Unmute microphone' : 'Mute microphone'"
+                      :aria-label="micMuted ? t('unmute') : t('mute')"
+                      :title="micMuted ? t('unmute') : t('mute')"
                       @click="micMuted = !micMuted"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -615,8 +613,8 @@
                     <button
                       class="call-control call-control-end"
                       type="button"
-                      aria-label="End call"
-                      title="End call"
+                      :aria-label="t('endCall')"
+                      :title="t('endCall')"
                       @click="endCall"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -627,8 +625,8 @@
                       class="call-control"
                       :class="{ active: cameraOff }"
                       type="button"
-                      :aria-label="cameraOff ? 'Turn video on' : 'Turn video off'"
-                      :title="cameraOff ? 'Turn video on' : 'Turn video off'"
+                      :aria-label="cameraOff ? t('videoOn') : t('videoOff')"
+                      :title="cameraOff ? t('videoOn') : t('videoOff')"
                       @click="cameraOff = !cameraOff"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -650,8 +648,8 @@
               <div class="sb-check">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
               </div>
-              <div class="sb-line1">{{ bannerLine1 }}</div>
-              <div class="sb-line2">{{ bannerLine2 }}</div>
+              <div class="sb-line1">{{ t(bannerLine1) }}</div>
+              <div class="sb-line2">{{ t(bannerLine2) }}</div>
               <svg class="sb-leaf sb-leaf-l" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86C10 44 40 14 88 12c2 44-26 74-74 74z" /><path d="M14 86L58 42" /></svg>
               <svg class="sb-leaf sb-leaf-r" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86C10 44 40 14 88 12c2 44-26 74-74 74z" /><path d="M14 86L58 42" /></svg>
               <i class="sb-spark" style="left:8%;top:-6%"></i>
@@ -667,20 +665,20 @@
             <div class="eco-overlay" v-if="trashState === 'intro'">
               <div class="eco-card">
                 <div class="eco-title">
-                  <span class="eco-name">AI TRASH</span>
-                  <span class="eco-year">SCANNER</span>
+                  <span class="eco-name">{{ t('trashName') }}</span>
+                  <span class="eco-year">{{ t('trashYear') }}</span>
                 </div>
-                <div class="eco-tag">SORT THE WASTE, SAVE THE WATER</div>
+                <div class="eco-tag">{{ t('trashTag') }}</div>
                 <button class="eco-start" @click="startTrash">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" /></svg>
-                  START GAME
+                  {{ t('startGame') }}
                 </button>
                 <div class="eco-info">
                   <svg class="eco-clock" viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="13" r="8" />
                     <path d="M12 9v4l2.5 2M9.5 2h5" />
                   </svg>
-                  <p>Tap an item to scan it, then tap the right bin.<br />Sort {{ TRASH_GOAL }} items in {{ TRASH_SECONDS }} seconds!</p>
+                  <p>{{ t('trashInfo', { n: TRASH_GOAL, s: TRASH_SECONDS }) }}</p>
                 </div>
               </div>
             </div>
@@ -692,10 +690,10 @@
                 <svg class="g-clock" viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
                 </svg>
-                <div><small>TIME LEFT</small><b>{{ trashTime }}s</b></div>
+                <div><small>{{ t('timeLeft') }}</small><b>{{ trashTime }}s</b></div>
               </div>
               <div class="g-card g-bar">
-                <div class="g-bar-label">WATER PURIFIED: {{ Math.round((trashCorrect / TRASH_GOAL) * 100) }}%</div>
+                <div class="g-bar-label">{{ t('waterPurified', { n: Math.round((trashCorrect / TRASH_GOAL) * 100) }) }}</div>
                 <div class="g-segs"><i v-for="n in TRASH_GOAL" :key="n" :class="{ on: trashCorrect >= n }"></i></div>
               </div>
             </div>
@@ -708,11 +706,11 @@
               class="t-item"
               :class="{ scanning: it.scanning, scanned: it.scanned, selected: selectedId === it.id }"
               :style="{ left: it.x + '%', top: '50%' }"
-              aria-label="Trash item"
+              :aria-label="t('trashAria')"
               @pointerdown.prevent="scanItem(it)"
             >
               <span class="t-laser"></span>
-              <span class="t-tag" v-if="it.scanned">[AI DETECTED: {{ TRASH_LABELS[it.kind] }}]</span>
+              <span class="t-tag" v-if="it.scanned">{{ t('aiDetected', { label: TRASH_LABELS[it.kind] }) }}</span>
               <svg viewBox="0 0 100 100" aria-hidden="true">
                 <g v-if="it.kind === 'plastic'">
                   <rect x="42" y="6" width="16" height="9" rx="2" fill="#2f80ed" />
@@ -754,30 +752,30 @@
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0V10a1.5 1.5 0 0 1 3 0v4.5c0 3-2 6-5.5 6H12c-2 0-3-1-4.2-2.6L5 14a1.5 1.5 0 0 1 2.3-1.9L9 14" />
               </svg>
-              <span>Tap an item to scan it,<br />then tap the right bin!</span>
+              <span>{{ t('trashHint') }}</span>
             </div>
           </template>
 
           <div class="g-overlay" v-if="trashState === 'lost'">
             <div class="g-result g-card">
-              <div class="g-result-title">TIME'S UP!</div>
-              <p>Only {{ trashCorrect }} of {{ TRASH_GOAL }} items sorted.<br />The water still needs you. Try again!</p>
-              <button class="g-btn" @click="startTrash">TRY AGAIN</button>
+              <div class="g-result-title">{{ t('timesUp') }}</div>
+              <p>{{ t('trashLose', { n: trashCorrect, g: TRASH_GOAL }) }}</p>
+              <button class="g-btn" @click="startTrash">{{ t('tryAgain') }}</button>
             </div>
           </div>
 
           <div class="g-win-flash" v-if="trashWinFlash" aria-hidden="true"></div>
           <div class="g-center" v-if="trashState === 'won' && !trashTxOpen">
             <div class="g-rays"></div>
-            <div class="g-title">MISSION<br />COMPLETE!</div>
+            <div class="g-title">{{ t('mission') }}</div>
           </div>
 
           <transition name="fade">
             <div class="g-overlay call-overlay" v-if="trashTxOpen">
               <div class="call-card">
-                <div class="tx-header">[ 📡 TRANSMISSION 2076 ]</div>
+                <div class="tx-header">{{ t('txHeader2') }}</div>
                 <p class="reality-message">"{{ TRASH_TX }}"</p>
-                <button class="choice call-answer" @click="onTrashContinue">CONTINUE</button>
+                <button class="choice call-answer" @click="onTrashContinue">{{ t('continueBtn') }}</button>
               </div>
             </div>
           </transition>
@@ -789,19 +787,19 @@
             <div class="eco-overlay" v-if="droneState === 'intro'">
               <div class="eco-card">
                 <div class="eco-title">
-                  <span class="eco-name">SATELLITE</span>
-                  <span class="eco-year">DRONE</span>
+                  <span class="eco-name">{{ t('droneName') }}</span>
+                  <span class="eco-year">{{ t('droneYear') }}</span>
                 </div>
-                <div class="eco-tag">REFOREST THE LAND, RESTORE THE OXYGEN</div>
+                <div class="eco-tag">{{ t('droneTag') }}</div>
                 <button class="eco-start" @click="startDrone">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" /></svg>
-                  START GAME
+                  {{ t('startGame') }}
                 </button>
                 <div class="eco-info">
                   <svg class="eco-clock" viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
                   </svg>
-                  <p>Tap the barren spots to launch Smart Seed Pods.<br />Grow {{ DRONE_GOAL }} trees in {{ DRONE_SECONDS }} seconds!</p>
+                  <p>{{ t('droneInfo', { n: DRONE_GOAL, s: DRONE_SECONDS }) }}</p>
                 </div>
               </div>
             </div>
@@ -814,10 +812,10 @@
                 <svg class="g-clock" viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9.5 2h5" />
                 </svg>
-                <div><small>TIME LEFT</small><b>{{ droneTime }}s</b></div>
+                <div><small>{{ t('timeLeft') }}</small><b>{{ droneTime }}s</b></div>
               </div>
               <div class="g-card g-bar">
-                <div class="g-bar-label">FOREST RESTORED: {{ Math.round((droneGrown / DRONE_GOAL) * 100) }}%</div>
+                <div class="g-bar-label">{{ t('forestRestored', { n: Math.round((droneGrown / DRONE_GOAL) * 100) }) }}</div>
                 <div class="g-segs"><i v-for="n in DRONE_GOAL" :key="n" :class="{ on: droneGrown >= n }"></i></div>
               </div>
             </div>
@@ -829,7 +827,7 @@
                 class="d-plot"
                 :class="{ grown: p.grown, launching: p.launching }"
                 :style="{ left: p.x + '%', top: p.y + '%' }"
-                aria-label="Barren soil"
+                :aria-label="t('barrenAria')"
                 @pointerdown.prevent="plantSeed(p)"
               >
                 <span class="d-dot"></span>
@@ -848,30 +846,30 @@
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0V10a1.5 1.5 0 0 1 3 0v4.5c0 3-2 6-5.5 6H12c-2 0-3-1-4.2-2.6L5 14a1.5 1.5 0 0 1 2.3-1.9L9 14" />
               </svg>
-              <span>Tap the barren spots<br />to plant trees!</span>
+              <span>{{ t('droneHint') }}</span>
             </div>
           </template>
 
           <div class="g-overlay" v-if="droneState === 'lost'">
             <div class="g-result g-card">
-              <div class="g-result-title">TIME'S UP!</div>
-              <p>Only {{ droneGrown }} of {{ DRONE_GOAL }} trees grown.<br />The forest still needs you. Try again!</p>
-              <button class="g-btn" @click="startDrone">TRY AGAIN</button>
+              <div class="g-result-title">{{ t('timesUp') }}</div>
+              <p>{{ t('droneLose', { n: droneGrown, g: DRONE_GOAL }) }}</p>
+              <button class="g-btn" @click="startDrone">{{ t('tryAgain') }}</button>
             </div>
           </div>
 
           <div class="g-win-flash" v-if="droneWinFlash" aria-hidden="true"></div>
           <div class="g-center" v-if="droneState === 'won' && !droneTxOpen">
             <div class="g-rays"></div>
-            <div class="g-title">MISSION<br />COMPLETE!</div>
+            <div class="g-title">{{ t('mission') }}</div>
           </div>
 
           <transition name="fade">
             <div class="g-overlay call-overlay" v-if="droneTxOpen">
               <div class="call-card">
-                <div class="tx-header">[ 📡 TRANSMISSION 2076 ]</div>
+                <div class="tx-header">{{ t('txHeader2') }}</div>
                 <p class="reality-message">"{{ DRONE_TX }}"</p>
-                <button class="choice call-answer" @click="onDroneContinue">CONTINUE</button>
+                <button class="choice call-answer" @click="onDroneContinue">{{ t('continueBtn') }}</button>
               </div>
             </div>
           </transition>
@@ -884,8 +882,8 @@
               <div class="sb-check">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
               </div>
-              <div class="sb-line1">ALL STAGES DONE!</div>
-              <div class="sb-line2 sb-small">You completed all 3 stages!</div>
+              <div class="sb-line1">{{ t('allDone') }}</div>
+              <div class="sb-line2 sb-small">{{ t('allDoneSub') }}</div>
               <i class="sb-spark" style="left:8%;top:-6%"></i>
               <i class="sb-spark" style="left:88%;top:-10%;animation-delay:-.5s"></i>
               <i class="sb-spark" style="left:96%;top:60%;animation-delay:-.9s"></i>
@@ -900,24 +898,24 @@
               <p class="be-thanks" v-if="happyStage === 1" key="h1">{{ happyThanksName }}</p>
               <div class="he-title" v-else-if="happyStage === 2" key="h2">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                <span>HAPPY ENDING UNLOCKED:<br />TIMELINE RESTORED</span>
+                <span>{{ t('heTitle') }}</span>
               </div>
               <p class="be-thanks" v-else-if="happyStage === 3" key="h3">{{ HE_SUB }}</p>
               <p class="be-thanks" v-else-if="happyStage === 4" key="h4">{{ BE_THANKS }}</p>
               <p class="be-edu" v-else key="h5">{{ BE_EDU }}</p>
             </transition>
             <transition name="fade">
-              <button class="be-contact" v-if="happyStage >= 6" @click="happyContactOpen = true; emit('contact')">Contact Us</button>
+              <button class="be-contact" v-if="happyStage >= 6" @click="happyContactOpen = true; emit('contact')">{{ t('contactUs') }}</button>
             </transition>
             <transition name="fade">
-              <button class="be-restart" v-if="happyStage >= 6" @click="restart">Start over</button>
+              <button class="be-restart" v-if="happyStage >= 6" @click="restart">{{ t('startOver') }}</button>
             </transition>
           </div>
         </transition>
 
         <transition name="fade">
           <div class="be-layer be-contact-layer he-contact" v-if="happyContactOpen">
-            <div class="ct-title">Contact Us</div>
+            <div class="ct-title">{{ t('contactUs') }}</div>
             <div class="ct-grid">
               <div class="ct-card" v-for="m in TEAM" :key="m.id">
                 <div class="ct-name">{{ m.name }}</div>
@@ -928,14 +926,14 @@
                   <a class="ct-icon" :class="{ off: !m.linkedin }" :href="m.linkedin || undefined" target="_blank" rel="noopener noreferrer" :aria-label="'LinkedIn ' + m.name" :aria-disabled="!m.linkedin" @click="!m.linkedin && $event.preventDefault()">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 22.222 23.227h.003zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                   </a>
-                  <button type="button" class="ct-icon" :aria-label="'Copy email ' + m.name" title="Copy email" @click="copyEmail(m)">
+                  <button type="button" class="ct-icon" :aria-label="t('copyEmail', { name: m.name })" :title="t('copyEmail', { name: m.name })" @click="copyEmail(m)">
                     <svg viewBox="0 0 24 24" class="ct-stroke" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 7l8.5 6.5L20.5 7" /></svg>
                   </button>
                 </div>
-                <div class="ct-toast" :class="{ show: copiedId === m.id }">Email copied!</div>
+                <div class="ct-toast" :class="{ show: copiedId === m.id }">{{ t('emailCopied') }}</div>
               </div>
             </div>
-            <button class="ct-back" @click="happyContactOpen = false">Back</button>
+            <button class="ct-back" @click="happyContactOpen = false">{{ t('back') }}</button>
           </div>
         </transition>
 
@@ -945,7 +943,7 @@
       <!-- DONE / handoff to Fase 2 -->
       <div class="stage narrative-bg" v-else-if="phase === 'done'" key="done">
         <div class="narrative-text show handoff-text">
-          Fase 1 selesai — lanjut ke Fase 2
+          {{ t('handoff') }}
         </div>
       </div>
 
@@ -967,7 +965,7 @@
           :class="{ hidden: realityHidden }"
           v-if="realityLine >= 0"
         >
-          <div class="tx-header">[ ⚠️ REALITY CHECK // KALIMANTAN 2026 ]</div>
+          <div class="tx-header">{{ t('realityHeader') }}</div>
           <transition name="reality-text" mode="out-in" appear>
             <p class="reality-message" :key="realityLine">
               {{ realityMessages[realityLine] }}
@@ -978,10 +976,10 @@
         <transition name="fade">
           <div class="reality-choices" v-if="realityChoices">
             <button class="rc-btn rc-still" @click="onStillWhatever">
-              Still whatever
+              {{ t('stillWhatever') }}
             </button>
             <button class="rc-btn rc-fix" @click="onFixThis">
-              I WAS WRONG. LET ME FIX THIS
+              {{ t('fixThis') }}
             </button>
           </div>
         </transition>
@@ -998,18 +996,18 @@
             <path d="M32 21 V38" />
             <circle cx="32" cy="46" r="1.6" />
           </svg>
-          <div class="bi-title">BAD ENDING INITIATED</div>
-          <div class="bi-label">TIMELINE REWRITING ...</div>
+          <div class="bi-title">{{ t('badTitle') }}</div>
+          <div class="bi-label">{{ t('badLabel') }}</div>
           <div class="bi-bar"><div class="bi-fill" :style="{ width: badPct + '%' }"></div></div>
           <div class="bi-scale"><span>0%</span><span>{{ badPct }}%</span><span>100%</span></div>
         </div>
 
         <div class="bi-log" aria-hidden="true">
-          <p style="--i: 0">IGNORING WARNINGS...</p>
-          <p style="--i: 1">CLIMATE SYSTEM FAILING...</p>
-          <p style="--i: 2">ECOSYSTEM COLLAPSED...</p>
-          <p style="--i: 3">HUMANITY AT RISK...</p>
-          <p style="--i: 4">LOADING 2076 TIMELINE...</p>
+          <p style="--i: 0">{{ t('badLog1') }}</p>
+          <p style="--i: 1">{{ t('badLog2') }}</p>
+          <p style="--i: 2">{{ t('badLog3') }}</p>
+          <p style="--i: 3">{{ t('badLog4') }}</p>
+          <p style="--i: 4">{{ t('badLog5') }}</p>
         </div>
       </div>
 
@@ -1066,7 +1064,7 @@
                 <path d="M32 21 V38" />
                 <circle cx="32" cy="46" r="1.6" />
               </svg>
-              <span>BAD ENDING UNLOCKED:<br />TIMELINE ERASED</span>
+              <span>{{ t('beWarn') }}</span>
             </div>
             <transition name="fade">
               <p class="be-sub" v-if="endStage >= 2">{{ BE_SUB }}</p>
@@ -1077,7 +1075,7 @@
         <!-- Contact Us -->
         <transition name="fade">
           <div class="be-layer be-contact-layer" v-if="contactOpen">
-            <div class="ct-title">Contact Us</div>
+            <div class="ct-title">{{ t('contactUs') }}</div>
             <div class="ct-grid">
               <div class="ct-card" v-for="m in TEAM" :key="m.id">
                 <div class="ct-name">{{ m.name }}</div>
@@ -1111,8 +1109,8 @@
                   <button
                     type="button"
                     class="ct-icon"
-                    :aria-label="'Copy email ' + m.name"
-                    title="Copy email"
+                    :aria-label="t('copyEmail', { name: m.name })"
+                    :title="t('copyEmail', { name: m.name })"
                     @click="copyEmail(m)"
                   >
                     <svg viewBox="0 0 24 24" class="ct-stroke" aria-hidden="true">
@@ -1121,10 +1119,10 @@
                     </svg>
                   </button>
                 </div>
-                <div class="ct-toast" :class="{ show: copiedId === m.id }">Email copied!</div>
+                <div class="ct-toast" :class="{ show: copiedId === m.id }">{{ t('emailCopied') }}</div>
               </div>
             </div>
-            <button class="ct-back" @click="contactOpen = false">Back</button>
+            <button class="ct-back" @click="contactOpen = false">{{ t('back') }}</button>
           </div>
         </transition>
 
@@ -1137,18 +1135,27 @@
             </transition>
             <transition name="fade">
               <button class="be-contact" v-if="endStage >= 6" @click="onContact">
-                Contact Us
+                {{ t('contactUs') }}
               </button>
             </transition>
             <transition name="fade">
               <button class="be-restart" v-if="endStage >= 6" @click="restart">
-                Start over
+                {{ t('startOver') }}
               </button>
             </transition>
           </div>
         </transition>
       </div>
     </transition>
+    <button
+      v-if="showLang"
+      class="lang-toggle"
+      type="button"
+      @click="toggleLang"
+      :aria-label="lang === 'en' ? 'Ganti ke Bahasa Indonesia' : 'Switch to English'"
+    >
+      <span :class="{ on: lang === 'id' }">ID</span><i></i><span :class="{ on: lang === 'en' }">EN</span>
+    </button>
   </div>
 </template>
 
@@ -1157,6 +1164,200 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { setCursorTheme } from '../utils/cursorTheme.js'
 
 const emit = defineEmits(['finished', 'done', 'contact'])
+
+// ================= I18N =================
+const lang = ref('en')
+try {
+  const saved = localStorage.getItem('gg-lang')
+  if (saved === 'en' || saved === 'id') lang.value = saved
+} catch {}
+watch(lang, (value) => { try { localStorage.setItem('gg-lang', value) } catch {} })
+function toggleLang() { lang.value = lang.value === 'en' ? 'id' : 'en' }
+
+function t(key, params) {
+  let text = I18N[lang.value][key] ?? I18N.en[key] ?? key
+  if (params) {
+    for (const keyName in params) text = text.replaceAll(`{${keyName}}`, params[keyName])
+  }
+  return text
+}
+
+const I18N = {
+  en: {
+    goSub: 'Click to start',
+    handoff: 'Phase 1 complete — continue to Phase 2.',
+    hpLine1: 'Use headphones for', hpLine2: 'best experience',
+    txHeader: '[ ⚠️ INCOMING TRANSMISSION // 2076 ]',
+    whatever: 'Whatever!',
+    inspectBtn: '👆 CLICK THE 3 WARNING NODES TO INSPECT YOUR SURROUNDINGS',
+    hintClick: 'CLICK', hintRest: 'THE 3 WARNING NODES\nTO INSPECT YOUR SURROUNDINGS',
+    scan: '[ ⚠️ SCAN // {label} ]', close: 'Close',
+    unlocked: '[ TRANSMISSION UNLOCKED — SCROLL TO PREVENT 2076 ↓ ]',
+    identity: '[ IDENTITY CHECK // 2076 ]', nickLabel: 'What should I call you?',
+    nickPh: 'Your nickname', continue: 'Continue',
+    line1: 'Hey...', line2: 'Hey, wake up!', line3: 'Are you okay?',
+    line4: "Hmm...? What happened?\nIt's just... so hot today...",
+    line5: 'Who are you? Why are you calling me?',
+    txTop1: 'You need to wake up! Look around you. The heat, the haze... this is where it all begins.',
+    txReply: "What do you mean? It's just a bad weather day...",
+    txTop2: "No. I'm speaking from 2076. Where I stand, there are no green trees left. The air burns. 50°C is our coolest day.",
+    povLine: "Wait... those numbers... this isn't just bad weather. It's a slow collapse.",
+    txFinal: 'Now you see the reality. Scroll down before these warnings become your permanent nightmare.',
+    wakeLine: 'Huh...? Where am I?', hello: 'Hello, {name}!',
+    welcome: 'Welcome to Go Green!', wake4: "Let's take care of our planet together!",
+    ecoTag: 'CLEAN THE AIR, BRIGHTER TOMORROW', startGame: 'START GAME',
+    ecoInfo: 'Clear the pollution within {s} seconds\nto restore clean air!',
+    timeLeft: 'TIME LEFT', cleanAir: 'CLEAN AIR: {n}%', pause: '❚❚ PAUSE',
+    paused: 'PAUSED', resume: 'RESUME', timesUp: "TIME'S UP!", tryAgain: 'TRY AGAIN',
+    cleanLose: 'Only {n}% of the air is clean.\nThe city needs you. Try again!',
+    mission: 'MISSION\nCOMPLETE!', seedAria: 'Green seed', pollAria: 'Pollution bubble',
+    gameHint: 'Tap the pollution bubbles\nto clean the air!',
+    callHeader: '[ ⚠️ INCOMING CALL // 2076 ]', callName: 'Caller from 2076',
+    callSub: "The air is clean again... they're calling you!", answer: 'ANSWER',
+    callAlt: 'A person from 2076 celebrating the restored air',
+    callControls: 'Call controls', mute: 'Mute microphone', unmute: 'Unmute microphone',
+    endCall: 'End call', videoOff: 'Turn video off', videoOn: 'Turn video on',
+    call1: 'WAIT... WHAT IS HAPPENING?!',
+    call2: 'The air quality just improved so much! I can see the sky again!',
+    call3: 'You actually saved our future! Thank you!',
+    stage1Done: 'STAGE 1 COMPLETED:', airPurified: 'AIR PURIFIED!',
+    stage2Done: 'STAGE 2 COMPLETED:', waterDone: 'WATER PURIFIED!',
+    allDone: 'ALL STAGES DONE!', allDoneSub: 'You completed all 3 stages!',
+    trashName: 'AI TRASH', trashYear: 'SCANNER', trashTag: 'SORT THE WASTE, SAVE THE WATER',
+    trashInfo: 'Tap an item to scan it, then tap the right bin.\nSort {n} items in {s} seconds!',
+    waterPurified: 'WATER PURIFIED: {n}%', trashAria: 'Trash item',
+    aiDetected: '[AI DETECTED: {label}]',
+    lblPlastic: 'PET PLASTIC', lblEwaste: 'E-WASTE / BATTERY', lblOrganic: 'ORGANIC WASTE',
+    binPlastic: 'PLASTIC', binEwaste: 'E-WASTE', binOrganic: 'ORGANIC',
+    scanFirst: 'SCAN AN ITEM FIRST', wrongBin: 'WRONG BIN  -1s',
+    trashHint: 'Tap an item to scan it,\nthen tap the right bin!',
+    trashLose: 'Only {n} of {g} items sorted.\nThe water still needs you. Try again!',
+    txHeader2: '[ 📡 TRANSMISSION 2076 ]', continueBtn: 'CONTINUE',
+    trashTx: "Incredible! The microplastics in our bunker's drinking water just vanished completely!",
+    droneName: 'SATELLITE', droneYear: 'DRONE', droneTag: 'REFOREST THE LAND, RESTORE THE OXYGEN',
+    droneInfo: 'Tap the barren spots to launch Smart Seed Pods.\nGrow {n} trees in {s} seconds!',
+    forestRestored: 'FOREST RESTORED: {n}%', barrenAria: 'Barren soil',
+    droneHint: 'Tap the barren spots\nto plant trees!',
+    droneLose: 'Only {n} of {g} trees grown.\nThe forest still needs you. Try again!',
+    droneTx: 'Kalimantan forest is dense again! Atmospheric oxygen levels are rising fast!',
+    heTitle: 'HAPPY ENDING UNLOCKED:\nTIMELINE RESTORED',
+    heSub: 'You rewrote the timeline.\nIn 2076, the Earth breathes again.',
+    thanksName: 'Thank you, {name}, for helping save this Earth.',
+    realityHeader: '[ ⚠️ REALITY CHECK // KALIMANTAN 2026 ]',
+    r1: 'Look closely. That was Kalimantan in 2026.',
+    r2: 'Thousands of species lost, toxic smog choking millions... and you still looked away?',
+    r3: "Still think it's 'whatever'?",
+    stillWhatever: 'Still whatever', fixThis: 'I WAS WRONG. LET ME FIX THIS',
+    badTitle: 'BAD ENDING INITIATED', badLabel: 'TIMELINE REWRITING ...',
+    badLog1: 'IGNORING WARNINGS...', badLog2: 'CLIMATE SYSTEM FAILING...',
+    badLog3: 'ECOSYSTEM COLLAPSED...', badLog4: 'HUMANITY AT RISK...',
+    badLog5: 'LOADING 2076 TIMELINE...',
+    beWarn: 'BAD ENDING UNLOCKED:\nTIMELINE ERASED',
+    beSub: "You ignored every warning.\nIn 2076, the Earth didn't survive.\nThis is all that's left of our civilization.",
+    beThanks: 'Thank you for visiting our website.',
+    beEdu: 'This website was made for education,\nby Molly The Gank.',
+    contactUs: 'Contact Us', startOver: 'Start over', back: 'Back',
+    emailCopied: 'Email copied!', copyEmail: 'Copy email {name}',
+    nodes: {
+      heat: { label: 'HEAT', title: 'Heat Warning / Heatwave', nowV: '38°C', nowN: 'Extreme Heat',
+        futV: '50°C - 52°C', futN: 'Protective gear / cooling masks required to go outside',
+        msg: 'The AC you ran all day in 2026 is burning our atmosphere today.' },
+      air: { label: 'AIR QUALITY', title: 'Air Pollution', nowV: 'AQI 175', nowN: 'Unhealthy',
+        futV: 'AQI 450+', futN: 'Hazardous Toxic Air',
+        msg: "You called it a thin haze. We call it toxic air we can't breathe." },
+      eco: { label: 'ECOSYSTEM', title: 'Waste & Rivers', nowV: '70%', nowN: 'Plastic waste piling up in rivers',
+        futV: 'Total Clean Water Crisis', futN: 'Our last drinking water supply',
+        msg: 'The single-use plastic you threw away yesterday is swimming in our last drinking water supply.' }
+    }
+  },
+  id: {
+    goSub: 'Klik untuk mulai',
+    handoff: 'Fase 1 selesai — lanjut ke Fase 2.',
+    hpLine1: 'Gunakan headphone untuk', hpLine2: 'pengalaman terbaik',
+    txHeader: '[ ⚠️ TRANSMISI MASUK // 2076 ]',
+    whatever: 'Terserah!',
+    inspectBtn: '👆 KLIK 3 NODE PERINGATAN UNTUK MEMERIKSA SEKITARMU',
+    hintClick: 'KLIK', hintRest: 'KE-3 NODE PERINGATAN\nUNTUK MEMERIKSA SEKITARMU',
+    scan: '[ ⚠️ PINDAI // {label} ]', close: 'Tutup',
+    unlocked: '[ TRANSMISI TERBUKA — SCROLL UNTUK MENCEGAH 2076 ↓ ]',
+    identity: '[ PEMERIKSAAN IDENTITAS // 2076 ]', nickLabel: 'Aku harus panggil kamu apa?',
+    nickPh: 'Nama panggilanmu', continue: 'Lanjut',
+    line1: 'Hei...', line2: 'Hei, bangun!', line3: 'Kamu baik-baik saja?',
+    line4: 'Hmm...? Apa yang terjadi?\nCuma... panas banget hari ini...',
+    line5: 'Kamu siapa? Kenapa kamu menghubungiku?',
+    txTop1: 'Kamu harus bangun! Lihat sekelilingmu. Panasnya, kabutnya... di sinilah semuanya bermula.',
+    txReply: 'Maksudmu apa? Ini cuma hari dengan cuaca buruk...',
+    txTop2: 'Bukan. Aku bicara dari tahun 2076. Di tempatku berdiri, tidak ada lagi pohon hijau. Udaranya membakar. 50°C adalah hari terdingin kami.',
+    povLine: 'Tunggu... angka-angka itu... ini bukan sekadar cuaca buruk. Ini keruntuhan yang perlahan.',
+    txFinal: 'Sekarang kamu lihat kenyataannya. Scroll ke bawah sebelum peringatan ini jadi mimpi burukmu yang permanen.',
+    wakeLine: 'Hah...? Aku di mana?', hello: 'Halo, {name}!',
+    welcome: 'Selamat datang di Go Green!', wake4: 'Ayo kita jaga planet kita bersama-sama!',
+    ecoTag: 'BERSIHKAN UDARA, MASA DEPAN LEBIH CERAH', startGame: 'MULAI GAME',
+    ecoInfo: 'Bersihkan polusi dalam {s} detik\nuntuk memulihkan udara bersih!',
+    timeLeft: 'SISA WAKTU', cleanAir: 'UDARA BERSIH: {n}%', pause: '❚❚ JEDA',
+    paused: 'DIJEDA', resume: 'LANJUTKAN', timesUp: 'WAKTU HABIS!', tryAgain: 'COBA LAGI',
+    cleanLose: 'Baru {n}% udara yang bersih.\nKota ini membutuhkanmu. Coba lagi!',
+    mission: 'MISI\nSELESAI!', seedAria: 'Biji hijau', pollAria: 'Gelembung polusi',
+    gameHint: 'Ketuk gelembung polusi\nuntuk membersihkan udara!',
+    callHeader: '[ ⚠️ PANGGILAN MASUK // 2076 ]', callName: 'Penelepon dari 2076',
+    callSub: 'Udaranya bersih lagi... mereka meneleponmu!', answer: 'ANGKAT',
+    callAlt: 'Seseorang dari 2076 merayakan udara yang pulih',
+    callControls: 'Kontrol panggilan', mute: 'Matikan mikrofon', unmute: 'Nyalakan mikrofon',
+    endCall: 'Akhiri panggilan', videoOff: 'Matikan video', videoOn: 'Nyalakan video',
+    call1: 'TUNGGU... APA YANG TERJADI?!',
+    call2: 'Kualitas udaranya tiba-tiba membaik banget! Aku bisa lihat langit lagi!',
+    call3: 'Kamu benar-benar menyelamatkan masa depan kami! Terima kasih!',
+    stage1Done: 'TAHAP 1 SELESAI:', airPurified: 'UDARA BERSIH!',
+    stage2Done: 'TAHAP 2 SELESAI:', waterDone: 'AIR BERSIH!',
+    allDone: 'SEMUA TAHAP SELESAI!', allDoneSub: 'Kamu menyelesaikan ketiga tahap!',
+    trashName: 'AI SAMPAH', trashYear: 'SCANNER', trashTag: 'PILAH SAMPAH, SELAMATKAN AIR',
+    trashInfo: 'Ketuk item untuk memindai, lalu ketuk tong yang tepat.\nPilah {n} item dalam {s} detik!',
+    waterPurified: 'AIR TERSARING: {n}%', trashAria: 'Item sampah',
+    aiDetected: '[AI MENDETEKSI: {label}]',
+    lblPlastic: 'PLASTIK PET', lblEwaste: 'LIMBAH ELEKTRONIK / BATERAI', lblOrganic: 'SAMPAH ORGANIK',
+    binPlastic: 'PLASTIK', binEwaste: 'E-WASTE', binOrganic: 'ORGANIK',
+    scanFirst: 'PINDAI ITEM DULU', wrongBin: 'TONG SALAH  -1d',
+    trashHint: 'Ketuk item untuk memindai,\nlalu ketuk tong yang tepat!',
+    trashLose: 'Baru {n} dari {g} item terpilah.\nAir masih membutuhkanmu. Coba lagi!',
+    txHeader2: '[ 📡 TRANSMISI 2076 ]', continueBtn: 'LANJUT',
+    trashTx: 'Luar biasa! Mikroplastik di air minum bunker kami hilang sepenuhnya!',
+    droneName: 'SATELIT', droneYear: 'DRONE', droneTag: 'HIJAUKAN LAHAN, PULIHKAN OKSIGEN',
+    droneInfo: 'Ketuk lahan gersang untuk meluncurkan Smart Seed Pod.\nTumbuhkan {n} pohon dalam {s} detik!',
+    forestRestored: 'HUTAN PULIH: {n}%', barrenAria: 'Tanah gersang',
+    droneHint: 'Ketuk lahan gersang\nuntuk menanam pohon!',
+    droneLose: 'Baru {n} dari {g} pohon tumbuh.\nHutan masih membutuhkanmu. Coba lagi!',
+    droneTx: 'Hutan Kalimantan rimbun lagi! Kadar oksigen di atmosfer naik dengan cepat!',
+    heTitle: 'HAPPY ENDING TERBUKA:\nLINIMASA PULIH',
+    heSub: 'Kamu menulis ulang linimasa.\nDi tahun 2076, Bumi bernapas lagi.',
+    thanksName: 'Terima kasih, {name}, sudah membantu menyelamatkan Bumi ini.',
+    realityHeader: '[ ⚠️ CEK REALITA // KALIMANTAN 2026 ]',
+    r1: 'Lihat baik-baik. Itulah Kalimantan di tahun 2026.',
+    r2: 'Ribuan spesies punah, kabut asap beracun mencekik jutaan orang... dan kamu masih berpaling?',
+    r3: "Masih merasa ini 'terserah'?",
+    stillWhatever: 'Tetap terserah', fixThis: 'AKU SALAH. BIAR AKU PERBAIKI',
+    badTitle: 'BAD ENDING DIMULAI', badLabel: 'LINIMASA DITULIS ULANG ...',
+    badLog1: 'MENGABAIKAN PERINGATAN...', badLog2: 'SISTEM IKLIM GAGAL...',
+    badLog3: 'EKOSISTEM RUNTUH...', badLog4: 'UMAT MANUSIA TERANCAM...',
+    badLog5: 'MEMUAT LINIMASA 2076...',
+    beWarn: 'BAD ENDING TERBUKA:\nLINIMASA TERHAPUS',
+    beSub: 'Kamu mengabaikan semua peringatan.\nDi tahun 2076, Bumi tidak selamat.\nInilah yang tersisa dari peradaban kami.',
+    beThanks: 'Terima kasih sudah mengunjungi website kami.',
+    beEdu: 'Website ini dibuat untuk edukasi,\noleh Molly The Gank.',
+    contactUs: 'Hubungi Kami', startOver: 'Mulai ulang', back: 'Kembali',
+    emailCopied: 'Email disalin!', copyEmail: 'Salin email {name}',
+    nodes: {
+      heat: { label: 'PANAS', title: 'Peringatan Panas / Gelombang Panas', nowV: '38°C', nowN: 'Panas Ekstrem',
+        futV: '50°C - 52°C', futN: 'Wajib pakai pelindung / masker pendingin untuk keluar rumah',
+        msg: 'AC yang kamu nyalakan seharian di 2026 membakar atmosfer kami hari ini.' },
+      air: { label: 'KUALITAS UDARA', title: 'Polusi Udara', nowV: 'AQI 175', nowN: 'Tidak Sehat',
+        futV: 'AQI 450+', futN: 'Udara Beracun Berbahaya',
+        msg: 'Kamu bilang itu kabut tipis. Kami menyebutnya udara beracun yang tak bisa kami hirup.' },
+      eco: { label: 'EKOSISTEM', title: 'Sampah & Sungai', nowV: '70%', nowN: 'Sampah plastik menumpuk di sungai',
+        futV: 'Krisis Air Bersih Total', futN: 'Sisa terakhir air minum kami',
+        msg: 'Plastik sekali pakai yang kamu buang kemarin kini berenang di sisa terakhir air minum kami.' }
+    }
+  }
+}
 
 // phase: loading | goGreen | headphone | blackout | waking | narrative | transmission
 //        | inspect | done | whatever | realityCheck | badInit | badEnding
@@ -1191,22 +1392,11 @@ const TX1_MS = 5000
 const TX2_MS = 3500
 const TX3_MS = 6000
 
-const lines = [
-  "Hey...",
-  "Hey, wake up!",
-  "Are you okay?",
-  "Hmm...? What happened?\nIt's just... so hot today...",
-  "Who are you? Why are you calling me?"
-]
-
-const TX_TOP_1 = "You need to wake up! Look around you. The heat, the haze... this is where it all begins."
-const TX_REPLY = "What do you mean? It's just a bad weather day..."
-const TX_TOP_2 = "No. I'm speaking from 2076. Where I stand, there are no green trees left. The air burns. 50°C is our coolest day."
-const realityMessages = [
-  'Look closely. That was Kalimantan in 2026.',
-  'Thousands of species lost, toxic smog choking millions... and you still looked away?',
-  "Still think it's 'whatever'?"
-]
+const lines = computed(() => [t('line1'), t('line2'), t('line3'), t('line4'), t('line5')])
+const TX_TOP_1 = computed(() => t('txTop1'))
+const TX_REPLY = computed(() => t('txReply'))
+const TX_TOP_2 = computed(() => t('txTop2'))
+const realityMessages = computed(() => [t('r1'), t('r2'), t('r3')])
 let realityTimer = null
 
 // --- timing reality check -> pilihan ---------------------------------------
@@ -1224,10 +1414,9 @@ const BE_THANKS_AT = 12500    // "Thank you for visiting..." muncul
 const BE_EDU_AT = 17500       // ganti jadi teks edukasi Team Moli
 const BE_CONTACT_AT = 19500   // tombol Contact Us muncul
 
-const BE_SUB =
-  "You ignored every warning.\nIn 2076, the Earth didn't survive.\nThis is all that's left of our civilization."
-const BE_THANKS = 'Thank you for visiting our website.'
-const BE_EDU = 'This website was made for education,\nby Molly The Gank.'
+const BE_SUB = computed(() => t('beSub'))
+const BE_THANKS = computed(() => t('beThanks'))
+const BE_EDU = computed(() => t('beEdu'))
 
 // Contact Us: data anggota tim 
 const TEAM = [
@@ -1258,8 +1447,8 @@ const copiedId = ref(null)
 let copiedTimer = null
 
 // --- dialog setelah 3 pin selesai ------------------------------------------
-const POV_LINE = "Wait... those numbers... this isn't just bad weather. It's a slow collapse."
-const TX_FINAL = "Now you see the reality. Scroll down before these warnings become your permanent nightmare."
+const POV_LINE = computed(() => t('povLine'))
+const TX_FINAL = computed(() => t('txFinal'))
 
 // --- gambar -----------------------------------------------------------
 // Semua ada di /public/picture/
@@ -1569,7 +1758,7 @@ function advanceNarrative() {
     showLine.value = false
     setTimeout(() => {
       if (cancelled) return
-      if (narrativeIndex.value < lines.length - 1) {
+      if (narrativeIndex.value < lines.value.length - 1) {
         narrativeIndex.value++
         showLine.value = true
         playLineAudio(narrativeIndex.value)
@@ -1625,7 +1814,7 @@ function onWhateverVideoEnded() {
 
 function showRealityMessage(index) {
   realityLine.value = index
-  if (index < realityMessages.length - 1) {
+  if (index < realityMessages.value.length - 1) {
     realityTimer = setTimeout(() => showRealityMessage(index + 1), REALITY_LINE_MS)
     return
   }
@@ -1800,8 +1989,8 @@ function restart() {
   selectedId.value = null
   trashTxOpen.value = false
   stageBanner.value = false
-  bannerLine1.value = 'STAGE 1 COMPLETED:'
-  bannerLine2.value = 'AIR PURIFIED!'
+  bannerLine1.value = 'stage1Done'
+  bannerLine2.value = 'airPurified'
   droneState.value = 'idle'
   dronePlots.value = []
   droneTime.value = DRONE_SECONDS
@@ -1822,42 +2011,38 @@ function restart() {
 const INSPECT_BG = '/picture/inspect.avif'
 
 // x / y = posisi node (% layar) | stem = panjang garis ke bawah (vh)
-const nodes = [
+const NODE_BASE = [
   {
     id: 'heat',
-    label: 'HEAT',
     x: 33, y: 20, stem: 16,
-    icon: 'M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z',
-    title: 'Heat Warning / Heatwave',
-    now: { value: '38°C', note: 'Extreme Heat' },
-    future: { value: '50°C - 52°C', note: 'Protective gear / cooling masks required to go outside' },
-    msg: 'The AC you ran all day in 2026 is burning our atmosphere today.'
+    icon: 'M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z'
   },
   {
     id: 'air',
-    label: 'AIR QUALITY',
     x: 54, y: 36, stem: 14,
-    icon: 'M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2',
-    title: 'Air Pollution',
-    now: { value: 'AQI 175', note: 'Unhealthy' },
-    future: { value: 'AQI 450+', note: 'Hazardous Toxic Air' },
-    msg: "You called it a thin haze. We call it toxic air we can't breathe."
+    icon: 'M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2'
   },
   {
     id: 'eco',
-    label: 'ECOSYSTEM',
     x: 78, y: 62, stem: 16,
-    icon: 'M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1',
-    title: 'Waste & Rivers',
-    now: { value: '70%', note: 'Plastic waste piling up in rivers' },
-    future: { value: 'Total Clean Water Crisis', note: 'Our last drinking water supply' },
-    msg: 'The single-use plastic you threw away yesterday is swimming in our last drinking water supply.'
+    icon: 'M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1'
   }
 ]
+const nodes = computed(() => NODE_BASE.map((node) => {
+  const data = I18N[lang.value].nodes[node.id]
+  return {
+    ...node,
+    label: data.label,
+    title: data.title,
+    msg: data.msg,
+    now: { value: data.nowV, note: data.nowN },
+    future: { value: data.futV, note: data.futN }
+  }
+}))
 
 const seen = ref([])        // id node yang sudah dibuka
 const activeId = ref(null)  // node yang kartunya sedang tampil
-const activeNode = computed(() => nodes.find(n => n.id === activeId.value) || null)
+const activeNode = computed(() => nodes.value.find(n => n.id === activeId.value) || null)
 
 // --- inspect: state urutan "completion" -----------------------------------
 const completionStarted = ref(false)
@@ -2035,10 +2220,7 @@ const nicknamePrompt = ref(false)
 const nicknameInput = ref('')
 const nickname = ref('')
 const wakeMessages = computed(() => [
-  WAKE_LINE,
-  `Hello, ${nickname.value}!`,
-  'Welcome to Go Green!',
-  "Let's take care of our planet together!"
+  t('wakeLine'), t('hello', { name: nickname.value }), t('welcome'), t('wake4')
 ])
 const WAKE_MESSAGE_DURATION_MS = 2600
 const WAKE_MESSAGE_GAP_MS = 500
@@ -2511,11 +2693,7 @@ const WIN_MIN_CLEAN = 70
 const TICK_MS = 100
 const MAX_BUBBLES = 7
 const LEAF_CHANCE = 0.14
-const CALL_MESSAGES = [
-  'WAIT... WHAT IS HAPPENING?!',
-  'The air quality just improved so much! I can see the sky again!',
-  'You actually saved our future! Thank you!'
-]
+const CALL_MESSAGES = computed(() => [t('call1'), t('call2'), t('call3')])
 const CALL_MESSAGE_MS = 3800
 const CLOUD = [[32, 58, 22], [68, 58, 22], [50, 40, 24], [50, 64, 22]]
 
@@ -2684,7 +2862,7 @@ function answerCall() {
 
 function showCallMessage(index) {
   if (!callOpen.value || !callAnswered.value) return
-  if (index >= CALL_MESSAGES.length) {
+  if (index >= CALL_MESSAGES.value.length) {
     gameTimers.push(setTimeout(endCall, 1200))
     return
   }
@@ -2708,22 +2886,22 @@ const TRASH_SECONDS = 25
 const TRASH_GOAL = 8
 const TRASH_TICK_MS = 50
 const TRASH_MAX_ITEMS = 6
-const TRASH_TX = "Incredible! The microplastics in our bunker's drinking water just vanished completely!"
+const TRASH_TX = computed(() => t('trashTx'))
 const TRASH_KINDS = ['plastic', 'ewaste', 'organic']
-const TRASH_LABELS = {
-  plastic: 'PET PLASTIC',
-  ewaste: 'E-WASTE / BATTERY',
-  organic: 'ORGANIC WASTE'
-}
-const BINS = [
-  { id: 'plastic', name: 'PLASTIC', key: '1', color: '#4fc3ff', glow: 'rgba(79,195,255,0.55)' },
-  { id: 'ewaste', name: 'E-WASTE', key: '2', color: '#ffcf3f', glow: 'rgba(255,207,63,0.55)' },
-  { id: 'organic', name: 'ORGANIC', key: '3', color: '#6bff9c', glow: 'rgba(107,255,156,0.55)' }
-]
+const TRASH_LABELS = computed(() => ({
+  plastic: t('lblPlastic'),
+  ewaste: t('lblEwaste'),
+  organic: t('lblOrganic')
+}))
+const BINS = computed(() => [
+  { id: 'plastic', name: t('binPlastic'), key: '1', color: '#4fc3ff', glow: 'rgba(79,195,255,0.55)' },
+  { id: 'ewaste', name: t('binEwaste'), key: '2', color: '#ffcf3f', glow: 'rgba(255,207,63,0.55)' },
+  { id: 'organic', name: t('binOrganic'), key: '3', color: '#6bff9c', glow: 'rgba(107,255,156,0.55)' }
+])
 
 const stageBanner = ref(false)
-const bannerLine1 = ref('STAGE 1 COMPLETED:')
-const bannerLine2 = ref('AIR PURIFIED!')
+const bannerLine1 = ref('stage1Done')
+const bannerLine2 = ref('airPurified')
 const allDoneBanner = ref(false)
 const trashState = ref('idle')
 const trashItems = ref([])
@@ -2758,7 +2936,7 @@ function clearTrashTimers() {
   trashTimers.length = 0
 }
 
-function showStageBanner(line1 = 'STAGE 1 COMPLETED:', line2 = 'AIR PURIFIED!', next = null) {
+function showStageBanner(line1 = 'stage1Done', line2 = 'airPurified', next = null) {
   bannerLine1.value = line1
   bannerLine2.value = line2
   stageBanner.value = true
@@ -2842,7 +3020,7 @@ function flashToast(message) {
 function sortInto(binId) {
   if (trashState.value !== 'playing') return
   const item = trashItems.value.find((entry) => entry.id === selectedId.value)
-  if (!item) { flashToast('SCAN AN ITEM FIRST'); return }
+  if (!item) { flashToast(t('scanFirst')); return }
 
   const correct = item.kind === binId
   binFlash.value = { id: binId, ok: correct }
@@ -2857,12 +3035,12 @@ function sortInto(binId) {
   } else {
     trashMs = Math.max(0, trashMs - 1000)
     trashTime.value = Math.max(0, Math.ceil(trashMs / 1000))
-    flashToast('WRONG BIN  -1s')
+    flashToast(t('wrongBin'))
   }
 }
 
 function onTrashKey(e) {
-  const bin = BINS.find((item) => item.key === e.key)
+  const bin = BINS.value.find((item) => item.key === e.key)
   if (bin) sortInto(bin.id)
 }
 
@@ -2892,7 +3070,7 @@ function onTrashContinue() {
   trashTxOpen.value = false
   trashLater(() => {
     trashState.value = 'idle'
-    showStageBanner('STAGE 2 COMPLETED:', 'WATER PURIFIED!', () => {
+    showStageBanner('stage2Done', 'waterDone', () => {
       droneState.value = 'intro'
     })
   }, 500)
@@ -2901,8 +3079,8 @@ function onTrashContinue() {
 // ========== MINI GAME 3: SATELLITE DRONE REFORESTATION ==========
 const DRONE_SECONDS = 20
 const DRONE_GOAL = 10
-const DRONE_TX = 'Kalimantan forest is dense again! Atmospheric oxygen levels are rising fast!'
-const HE_SUB = 'You rewrote the timeline.\nIn 2076, the Earth breathes again.'
+const DRONE_TX = computed(() => t('droneTx'))
+const HE_SUB = computed(() => t('heSub'))
 
 const droneState = ref('idle')
 const dronePlots = ref([])
@@ -3012,8 +3190,10 @@ function onDroneContinue() {
 const happyStage = ref(0)
 const happyContactOpen = ref(false)
 const happyTimers = []
-const happyThanksName = computed(
-  () => `Thank you, ${nickname.value || 'friend'}, for helping save this Earth.`
+const happyThanksName = computed(() => t('thanksName', { name: nickname.value || 'friend' }))
+const showLang = computed(() =>
+  phase.value !== 'loading' && phase.value !== 'whatever' &&
+  gameState.value !== 'playing' && trashState.value !== 'playing' && droneState.value !== 'playing'
 )
 
 function happyLater(fn, ms) {
@@ -3057,7 +3237,7 @@ onBeforeUnmount(() => {
   mainEl.value?.pause()
 })
 
-const currentLine = computed(() => lines[narrativeIndex.value] || '')
+const currentLine = computed(() => lines.value[narrativeIndex.value] || '')
 
 // st-p1 / st-p2 / st-p3: fase waking  |  st-open: narrative (mata terbuka penuh)
 // st-dark: transmission (langit gelap + glitch)
@@ -5824,6 +6004,36 @@ const sceneState = computed(() => {
   .be-contact-layer { justify-content: flex-start; }
   .ct-card { flex-basis: 100%; }
 }
+
+/* preserve line breaks from translated copy */
+.hp-text div, .hint-text, .eco-info p, .g-hint span, .g-result p,
+.g-title, .he-title span, .be-warning span, .call-sub { white-space: pre-line; }
+
+.lang-toggle {
+  position: absolute;
+  right: 2vw;
+  bottom: 2.5vh;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: #8a8378;
+  background: rgba(20, 8, 8, 0.8);
+  border: 1px solid rgba(255, 140, 90, 0.4);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.lang-toggle:hover { border-color: #ff9a5c; box-shadow: 0 0 14px rgba(255, 110, 40, 0.35); }
+.lang-toggle:focus-visible { outline: 2px solid #f4f0e8; outline-offset: 3px; }
+.lang-toggle span { transition: color 0.2s, text-shadow 0.2s; }
+.lang-toggle span.on { color: #ff9a5c; text-shadow: 0 0 8px rgba(255, 140, 90, 0.8); }
+.lang-toggle i { width: 1px; height: 14px; background: rgba(255, 140, 90, 0.4); }
 
 @media (prefers-reduced-motion: reduce) {
   .eco-start { animation: none; }
