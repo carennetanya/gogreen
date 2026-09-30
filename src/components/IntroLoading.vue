@@ -1238,7 +1238,7 @@ const I18N = {
     line5: 'Who are you? Why are you calling me?',
     txTop1: 'You need to wake up! Look around you. The heat, the haze... this is where it all begins.',
     txReply: "What do you mean? It's just a bad weather day...",
-    txTop2: "No. I'm speaking from 2076. Where I stand, there are no green trees left. The air burns. 50°C is our coolest day.",
+    txTop2: "No. I'm speaking from 2076. Where I stand, there are no green trees left. Only you can Change this world",
     povLine: "Wait... those numbers... this isn't just bad weather. It's a slow collapse.",
     txFinal: 'Now you see the reality. Scroll down before these warnings become your permanent nightmare.',
     wakeLine: 'Huh...? Where am I?', hello: 'Hello, {name}!',
@@ -1325,7 +1325,7 @@ const I18N = {
     line5: 'Kamu siapa? Kenapa kamu menghubungiku?',
     txTop1: 'Kamu harus bangun! Lihat sekelilingmu. Panasnya, kabutnya... di sinilah semuanya bermula.',
     txReply: 'Maksudmu apa? Ini cuma hari dengan cuaca buruk...',
-    txTop2: 'Bukan. Aku bicara dari tahun 2076. Di tempatku berdiri, tidak ada lagi pohon hijau. Udaranya membakar. 50°C adalah hari terdingin kami.',
+    txTop2: 'Bukan. Aku berbicara dari tahun 2076. Di tempatku berada saat ini, tidak ada lagi pohon hijau yang tersisa. Hanya kaulah yang bisa mengubah dunia ini.',
     povLine: 'Tunggu... angka-angka itu... ini bukan sekadar cuaca buruk. Ini keruntuhan yang perlahan.',
     txFinal: 'Sekarang kamu lihat kenyataannya. Scroll ke bawah sebelum peringatan ini jadi mimpi burukmu yang permanen.',
     wakeLine: 'Hah...? Aku di mana?', hello: 'Halo, {name}!',
@@ -1418,6 +1418,8 @@ const BLACKOUT_MS = 1800
 const P1_MS = 4200 // "Hey..."
 const P2_MS = 6200 // "Hey, wake up!"
 const P3_MS = 4200 // "Are you okay?"
+const P1_VOICE_DELAY_MS = Math.round(P1_MS * 0.30)
+const P2_VOICE_DELAY_MS = Math.round(P2_MS * 0.42)
 
 // Ganti people1 -> people2 dilakukan SAAT mata merem total di Phase 3.
 // Di CSS eyeP3: merem total di 24% (~1.0s) sampai 40% (~1.7s) dari P3_MS.
@@ -1429,6 +1431,7 @@ const EYES_CLOSED_SWAP_MS = 1200
 const TX1_MS = 5000
 const TX2_MS = 3500
 const TX3_MS = 6000
+const TX_VOICE_DELAY_MS = 450
 
 const lines = computed(() => [t('line1'), t('line2'), t('line3'), t('line4'), t('line5')])
 const TX_TOP_1 = computed(() => t('txTop1'))
@@ -1504,7 +1507,7 @@ const personSrc = computed(() =>
 
 // --- audio ------------------------------------------------------------
 // Voice files live in /public/voice/. Index sesuai `lines`.
-const audioFiles = ['', 'kevin-1.ogg', 'kevin-2.ogg', '', '']
+const audioFiles = ['', 'kevin-1.mp4', 'kevin-2.mp4', 'kevin-3.mp4', 'kevin-4.mp4']
 
 // Background music lives in /public/music/. Starts on the given line index.
 const MUSIC_FILE = '/music/intro.mp3'
@@ -1817,16 +1820,22 @@ function beginWaking() {
   // Phase 1: "Hey..." (tanpa voice, heartbeat + radio signal jalan)
   playRadio()
   playFire() // suara api kebakar mulai fade-in bersamaan dengan mata mulai terbuka
+  setTimeout(() => {
+    if (cancelled) return
+    playLineAudio(3)
+  }, P1_VOICE_DELAY_MS)
   setTimeout(() => {           // Phase 2: "Hey, wake up!"
     if (cancelled) return
     wakeStage.value = 2
-    playLineAudio(1)
     stopSfx()
   }, P1_MS)
+  setTimeout(() => {
+    if (cancelled) return
+    playLineAudio(1)
+  }, P1_MS + P2_VOICE_DELAY_MS)
   setTimeout(() => {           // Phase 3: mata buka sebentar -> merem total -> melek
     if (cancelled) return
     wakeStage.value = 3
-    playLineAudio(2)
     playIntroMusic()
   }, P1_MS + P2_MS)
   setTimeout(() => {           // ganti people1 -> people2 SAAT mata tertutup total
@@ -1836,19 +1845,19 @@ function beginWaking() {
   setTimeout(() => {           // lanjut narrative dari "Hmm...?"
     if (cancelled) return
     phase.value = 'narrative'
-    beginNarrative(3)
+    beginNarrative(3, false)
   }, P1_MS + P2_MS + P3_MS)
 }
 
 // --- narrative sequence -------------------------------------------------
-function beginNarrative(startIndex = 0) {
+function beginNarrative(startIndex = 0, playStartAudio = true) {
   narrativeIndex.value = startIndex
   showLine.value = false
   // tiny delay so the text element mounts hidden, then fades in
   setTimeout(() => {
     if (cancelled) return
     showLine.value = true
-    playLineAudio(startIndex)
+    if (playStartAudio) playLineAudio(startIndex)
     if (startIndex === MUSIC_START_LINE_INDEX) playIntroMusic()
     advanceNarrative()
   }, 60)
@@ -1866,7 +1875,7 @@ function advanceNarrative() {
       if (narrativeIndex.value < lines.value.length - 1) {
         narrativeIndex.value++
         showLine.value = true
-        playLineAudio(narrativeIndex.value)
+        if (narrativeIndex.value !== 4) playLineAudio(narrativeIndex.value)
         if (narrativeIndex.value === MUSIC_START_LINE_INDEX) playIntroMusic()
         setTimeout(step, holdMs)
       } else {
@@ -1883,8 +1892,10 @@ function beginTransmission() {
   showLine.value = false
   phase.value = 'transmission'
   txStage.value = 1
+  setTimeout(() => { if (!cancelled) playLineAudio(2) }, TX_VOICE_DELAY_MS)
   setTimeout(() => { if (!cancelled) txStage.value = 2 }, TX1_MS)
   setTimeout(() => { if (!cancelled) txStage.value = 3 }, TX1_MS + TX2_MS)
+  setTimeout(() => { if (!cancelled) playLineAudio(4) }, TX1_MS + TX2_MS + TX_VOICE_DELAY_MS)
   setTimeout(() => { if (!cancelled) txStage.value = 4 }, TX1_MS + TX2_MS + TX3_MS)
 }
 
